@@ -172,6 +172,90 @@ skill 自身会声明类型。**TDD 和 debugging 是 rigid 的设计意图**：
 
 ---
 
+## 4. 全部 Skill 触发方式一览
+
+> **14 个 skill 中，13 个自动触发，1 个需要手动 `/`，1 个需要用户确认。不需要记住任何命令，正常对话即可。**
+
+### 4.0.1 按触发方式分类
+
+**全自动触发（11 个）：**
+
+| Skill | 触发时机 | 触发信号 |
+|---|---|---|
+| `using-superpowers` | 会话启动时 | SessionStart hook 自动加载 |
+| `brainstorming` | 你提出创建性需求 | "我想做 X"、"帮我加 X" |
+| `writing-plans` | brainstorming 完成后 | design doc 产出后自动进入 |
+| `executing-plans` | plan 审批后 | 你说 "go" 或 "开始执行" |
+| `subagent-driven-development` | plan 审批后，任务多且独立 | AI 判断并行更高效时自动选择 |
+| `dispatching-parallel-agents` | 执行中发现 2+ 个任务无依赖 | AI 自动派发并行 subagent |
+| `test-driven-development` | 开始写代码时 | 任何需要写实现代码的时刻 |
+| `systematic-debugging` | 遇到 bug 或测试失败 | 测试红灯、报错、unexpected behavior |
+| `verification-before-completion` | AI 准备说"做完了" | AI 内部自检点，不需要你触发 |
+| `requesting-code-review` | 任务代码写完后 | 实现完成时自动触发 |
+| `finishing-a-development-branch` | 所有任务 + review 通过 | 全部完成后自动触发 |
+
+**需要用户确认（1 个）：**
+
+| Skill | 触发方式 |
+|---|---|
+| `using-git-worktrees` | AI 每次都会提议创建 worktree，**你同意才执行**，拒绝则跳过 |
+
+**需要外部输入触发（1 个）：**
+
+| Skill | 触发方式 |
+|---|---|
+| `receiving-code-review` | 你在 PR 上留了 comment / 给了 review 反馈后才触发 |
+
+**需要手动 `/` 触发（1 个）：**
+
+| Skill | 触发方式 |
+|---|---|
+| `writing-skills` | 你想创建自定义新 skill 时，手动输入 `/writing-skills` |
+
+### 4.0.2 按流程阶段看触发顺序
+
+```
+会话启动 → using-superpowers（自动）
+    ↓
+你提需求 → brainstorming（自动）
+    ↓
+设计通过 → using-git-worktrees（AI 提议，你确认）
+    ↓
+开始规划 → writing-plans（自动）
+    ↓
+你审批 → executing-plans 或 subagent-driven-development（AI 自动选）
+    ↓          ↘ 如果任务独立 → dispatching-parallel-agents（自动）
+    ↓
+写代码 → test-driven-development（自动）
+    ↓ 遇到 bug → systematic-debugging（自动）
+    ↓ 即将完成 → verification-before-completion（自动）
+    ↓
+代码完成 → requesting-code-review（自动）
+    ↓ 收到反馈 → receiving-code-review（自动）
+    ↓
+全部通过 → finishing-a-development-branch（自动）
+```
+
+### 4.0.3 如何确认 Superpowers 是否生效
+
+提出一个需求后，**看 AI 的第一反应**：
+
+| AI 行为 | 说明 |
+|---|---|
+| 先反问你的需求、追问细节 | Superpowers brainstorming **已生效** |
+| 直接开始写代码 | Claude Code 默认行为，Superpowers **未生效** |
+
+如果未生效，排查：
+
+```bash
+cat ~/.claude/settings.json | jq '.hooks.SessionStart'
+# 没有输出或为空 → hook 没注册 → Superpowers 没激活
+```
+
+兜底方案：手动输入 `/superpowers:brainstorming 你的需求` 强制走 Superpowers 流程。
+
+---
+
 ## 4. 标准工作流（7 步法）
 
 按 README 的标准化流程：
