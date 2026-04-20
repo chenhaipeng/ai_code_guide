@@ -296,9 +296,300 @@ omc autoresearch --mission "improve startup performance" --eval "npm test"
 
 ---
 
-## 8. 命令速查
+## 8. 日常开发工作流（按场景）
 
-### 8.1 会话内 Skill / 触发词
+### 8.0 模式选择速查
+
+**先选模式，再开干：**
+
+| 场景 | 推荐模式 | 关键字触发 |
+|---|---|---|
+| 需求不明确 | Deep Interview | `/deep-interview` 或 `deep interview` / `ouroboros` |
+| 新功能（大型） | Team | `/team N:role "..."` |
+| 新功能（中小型） | Autopilot | `/autopilot` 或 `autopilot:` / `build me` / `I want a` |
+| Bug 修复（简单） | Autopilot | `/autopilot "fix ..."` |
+| Bug 修复（复杂/多个） | Ralph | `/ralph` 或 `ralph:` / `don't stop` / `must complete` |
+| 批量修改 / Lint 修复 | Ultrawork | `/ultrawork` 或 `ulw:` / `uw` |
+| 重构 | Team（executor-high） | `/team 1:executor-high "refactor ..."` |
+| 架构设计 | Deep Interview + Ralplan | `/deep-interview` → `/ralplan` |
+| Code Review | Team（code-reviewer） | `/team 1:code-reviewer "review ..."` |
+
+### 8.1 四种推荐 Workflow 模式
+
+官方推荐了 4 种命名的 Workflow 模式：
+
+**Full-Auto from PRD（大型功能，需要规划）：**
+
+```
+deep-interview / ralplan → team → ralph
+```
+
+1. `/deep-interview` 或 `/ralplan` 收集需求，planner + architect + critic 达成共识
+2. `/team` 启动并行 workers 构建实现
+3. `/ralph` 持久运行直到所有内容验证通过
+
+**No-Brainer（目标明确，直接干）：**
+
+```
+autopilot → ultrawork → ralph
+```
+
+1. `/autopilot` 自主执行
+2. `/ultrawork` 并行化子任务
+3. `/ralph` 持久运行直到验证完成
+
+**Fix / Debugging（Bug 和错误修复）：**
+
+```
+plan / autopilot → ralph
+```
+
+1. `/autopilot` 或直接描述调查根因
+2. `/ralph` 实现修复直到完成（自动包含 ultrawork 并行能力）
+
+**Parallel Issue Handling（多个 Issue / Ticket 并行处理）：**
+
+```
+omc team (architect) → omc team (workers) → ralplan → ralph + ultrawork
+```
+
+1. 启动 architect workers 分析所有 issue，草拟完整 plan
+2. workers 在独立 worktree 并行工作，各提交 PR
+3. 审查合并 PR，然后 `/ralplan` 解决冲突
+4. `/ralph` + `/ultrawork` 直到全部测试通过
+
+### 8.2 新功能开发（大型）—— Team 模式
+
+```
+/deep-interview "我想做一个用户通知系统"     ← 需求澄清（如果需求模糊）
+    ↓
+/ralplan "按 interview 结果拆任务"            ← 迭代规划共识
+    ↓
+/team 3:executor "按 plan 执行实现"           ← Team 流水线
+    ↓                                             team-plan → team-prd → team-exec
+    ↓                                             → team-verify → team-fix（循环）
+/ask codex "review 架构设计"                   ← Codex 交叉验证
+    ↓
+/ask gemini "review UI/UX 设计"               ← Gemini 交叉验证
+    ↓
+手动 merge / PR
+```
+
+**Team 流水线各阶段 Agent 路由：**
+
+| 阶段 | Agent 路由 |
+|---|---|
+| `team-plan` | planner（opus），可选 architect/analyst |
+| `team-prd` | analyst（opus），可选 critic |
+| `team-exec` | executor（sonnet）+ 任务相关专家（designer, debugger, test-engineer 等） |
+| `team-verify` | verifier + code-reviewer/security-reviewer 按需 |
+| `team-fix` | executor/debugger 取决于缺陷类型 |
+
+**也可以用 tmux CLI workers 并行：**
+
+```bash
+omc team 2:claude "实现注册 API + 数据库迁移"   # Claude workers 执行
+omc team 1:codex "审查安全性"                    # Codex worker 审查
+omc team 1:gemini "审查 UI/UX 设计"              # Gemini worker 审查
+```
+
+### 8.2 新功能开发（中小型）—— Autopilot 模式
+
+```
+/autopilot "build a REST API for managing tasks"
+```
+
+Autopilot 单 agent 自主执行，最少交互。适合目标明确的中小型任务。
+
+也可以用关键字触发：
+
+```
+autopilot: 给用户表加一个 last_login_at 字段，包含迁移和 API 更新
+```
+
+### 8.3 Bug 修复（简单）
+
+```
+/autopilot "fix the login redirect bug and verify it works"
+```
+
+### 8.4 Bug 修复（复杂 / 多个）—— Ralph 模式
+
+```
+/ralph "fix all TypeScript errors in src/auth/ and verify each fix"
+```
+
+Ralph 自动包含 Ultrawork 的并行能力，且带有 verify/fix 循环 —— **不到完成不停止**。
+
+### 8.5 批量修改 / Lint 修复 —— Ultrawork 模式
+
+```
+/ultrawork "fix all lint errors"
+```
+
+或：
+
+```
+ulw: fix all ESLint warnings in src/
+```
+
+最大并行度，快速处理大量同质任务。
+
+### 8.6 重构 —— Team（executor-high）
+
+```
+/team 1:executor-high "refactor the payment module to use the new domain model"
+```
+
+executor-high 使用 Opus 级别模型，适合复杂重构。
+
+分步执行也可以：
+
+```
+/analyze     ← 分析当前代码结构，识别 code smell
+    ↓
+/plan        ← 制定重构计划
+    ↓
+/refactor    ← 逐步应用变换，保持行为不变
+    ↓
+/test        ← 跑全量测试，对比重构前后输出
+    ↓
+/review      ← 验证改进，检查回归
+```
+
+### 8.7 架构设计 / 规划
+
+```
+/deep-interview "我想做一个微服务迁移"         ← 苏格拉底式需求澄清
+    ↓
+/ralplan "按 interview 结果制定迁移计划"        ← 迭代规划共识
+    ↓
+/ask codex "review this migration plan"         ← Codex 交叉验证
+    ↓
+/ask gemini "suggest architecture improvements"  ← Gemini 建议
+```
+
+### 8.8 Code Review
+
+```
+/team 1:code-reviewer "review PR #42"
+```
+
+分步执行：
+
+```
+/analyze      ← 分析变更文件和依赖
+    ↓
+/review       ← 多维度 code review
+    ↓
+/suggest      ← 生成改进建议
+```
+
+### 8.9 日常维护（Triage）
+
+```
+/triage       ← 处理 issues、PRs、alerts，排优先级
+    ↓
+/implement    ← 处理已批准的小任务
+    ↓
+/test         ← 跑相关测试
+    ↓
+/summarize    ← 生成当日变更摘要
+```
+
+### 8.10 TDD 开发
+
+```
+/tdd "Implement password validation with proper edge cases"
+```
+
+路由到 `test-engineer` agent，强制 RED-GREEN-REFACTOR 流程。
+
+也可以用关键字触发：
+
+```
+tdd implement password validation with edge cases
+```
+
+### 8.11 跨模型交叉验证
+
+OMC 的特色能力 — 用 `/ask` 调用外部 AI 做交叉验证：
+
+```
+/ask codex "review this migration plan"         ← Codex 验证
+/ask gemini "propose UI polish ideas"           ← Gemini 建议
+/ccg "综合分析这个架构方案"                       ← 三模型（Claude + Codex + Gemini）综合
+```
+
+结果自动保存到 `.omc/artifacts/ask/`。
+
+### 8.12 Agent 选型指南
+
+| 任务类型 | 推荐 Agent | 模型 Tier |
+|---|---|---|
+| 快速代码查找 | `explore` | haiku（LOW） |
+| 功能实现 | `executor` | sonnet（默认） |
+| 复杂重构 | `executor-high` | opus（HIGH） |
+| 简单调试 | `architect-low` | haiku（LOW） |
+| 复杂调试 | `architect` | opus（HIGH） |
+| UI 组件 | `designer` | sonnet（默认） |
+| 战略规划 | `planner` | opus（HIGH） |
+| 安全审查 | `security-reviewer` | opus（HIGH） |
+| 构建错误修复 | `debugger` | sonnet（默认） |
+| TDD | `test-engineer` | sonnet（默认） |
+| Code Review | `code-reviewer` | opus（HIGH） |
+
+### 8.13 关键字自动触发
+
+OMC 支持在对话中直接使用关键字触发模式，不需要 `/`：
+
+| 关键字 | 触发模式 |
+|---|---|
+| `autopilot`、`build me`、`I want a` | Autopilot 模式 |
+| `ralph`、`don't stop`、`must complete`、`until done` | Ralph 模式 |
+| `ultrawork`、`ulw`、`uw` | Ultrawork 并行模式 |
+| `ralplan` | 迭代规划共识 |
+| `deep interview`、`ouroboros` | 苏格拉底式需求澄清 |
+| `tdd`、`test first`、`red green` | TDD 工作流 |
+| `cancelomc`、`stopomc` | 停止当前模式 |
+
+### 8.14 Skill Pipeline 自动串联
+
+高级用法：Skill 可以在 frontmatter 中声明 handoff，自动串联成流水线：
+
+```yaml
+pipeline: [deep-interview, omc-plan, autopilot]
+next-skill: omc-plan
+next-skill-args: --consensus --direct
+handoff: .omc/specs/deep-interview-{slug}.md
+```
+
+效果：`/deep-interview` 完成后自动将输出传给 `omc-plan`，再传给 `autopilot` 执行，无需手动串联。
+
+### 8.15 场景速查表
+
+| 场景 | 第一个命令 | 后续 |
+|---|---|---|
+| 需求不明确 | `/deep-interview` | `/ralplan` → `/team` |
+| 新功能（大型） | `/ralplan` | `/team` → `/ask codex` → `/ask gemini` |
+| 新功能（中小型） | `/autopilot` | `ultrawork` → `ralph` |
+| 简单 Bug | `/autopilot "fix ..."` | 完成 |
+| 复杂 Bug | `/autopilot "调查..."` | `/ralph "修复..."` |
+| 批量修改 / Lint | `/ultrawork` 或 `ulw:` | 完成 |
+| 重构 | `/team 1:executor-high` | `/review` |
+| 架构设计 | `/deep-interview` | `/ralplan` → `/ask codex` → `/ask gemini` |
+| Code Review | `/team 1:code-reviewer` | `/suggest` |
+| TDD | `tdd <描述>` | 完成 |
+| 多 Issue 并行 | `omc team (architect)` | `ralplan` → `ralph` + `ultrawork` |
+| 日常维护 | `/triage` | `/implement` → `/test` → `/summarize` |
+| 跨模型验证 | `/ask codex` / `/ask gemini` | `/ccg` 三模型综合 |
+| 取消任何模式 | `cancelomc` / `stopomc` | — |
+
+---
+
+## 9. 命令速查
+
+### 9.1 会话内 Skill / 触发词
 
 | 命令/关键字 | 效果 |
 |---|---|
@@ -313,7 +604,7 @@ omc autoresearch --mission "improve startup performance" --eval "npm test"
 | `ultrathink` | 深度推理 |
 | `stopomc` / `cancelomc` | 停止当前模式 |
 
-### 8.2 终端 CLI
+### 9.2 终端 CLI
 
 | 命令 | 用途 |
 |---|---|
@@ -327,7 +618,7 @@ omc autoresearch --mission "improve startup performance" --eval "npm test"
 
 ---
 
-## 9. 与其他工具的关系
+## 10. 与其他工具的关系
 
 | 组合 | 评估 |
 |---|---|
@@ -339,27 +630,27 @@ omc autoresearch --mission "improve startup performance" --eval "npm test"
 
 ---
 
-## 10. 反模式
+## 11. 反模式
 
-### 10.1 ❌ 同时装 OMC + Superpowers
+### 11.1 ❌ 同时装 OMC + Superpowers
 
 → 两个工作流编排器打架。选一个。
 
-### 10.2 ❌ 小任务用 Team 模式
+### 11.2 ❌ 小任务用 Team 模式
 
 → 单文件修复不需要 3 个 agent 并行，直接裸 Claude Code 更快。
 
-### 10.3 ❌ 不启用 CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS
+### 11.3 ❌ 不启用 CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS
 
 → Team 模式是主推功能，不启用会回退到非 team 执行。
 
-### 10.4 ❌ OMC 全装 + ECC 全装
+### 11.4 ❌ OMC 全装 + ECC 全装
 
 → 55+ skill 同时加载，context 爆炸。
 
 ---
 
-## 11. 参考链接
+## 12. 参考链接
 
 - [GitHub 主仓](https://github.com/Yeachan-Heo/oh-my-claudecode)
 - [官网](https://ohmyclaudecode.com/)
@@ -370,6 +661,6 @@ omc autoresearch --mission "improve startup performance" --eval "npm test"
 
 ---
 
-## 12. 一句话总结
+## 13. 一句话总结
 
 > **oh-my-claudecode = 给 Claude Code 装上多 agent 团队编排能力。** Team 模式是核心价值——plan→prd→exec→verify→fix 流水线，配合 tmux CLI workers 实现跨模型（Claude/Codex/Gemini）协作。**适合大型项目，不适合小任务。**
