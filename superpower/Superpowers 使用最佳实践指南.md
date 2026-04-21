@@ -619,7 +619,132 @@ gemini extensions update superpowers
 
 ---
 
-## 13. 一句话总结
+## 13. 工作流提示指南
+
+> 本节回答：**"如果我要使用 Superpowers 的流程来开发，应该如何提示？"**
+>
+> Superpowers 的 14 个 skill 大部分是自动触发的，但你的提示词会影响触发哪些 skill 以及流程的完整性。以下是从**用户视角**出发的实战提示指南。
+
+### 13.1 按场景触发的提示方式
+
+| 你想做什么 | 你应该怎么说 | 会触发的工作流 |
+|---|---|---|
+| **开发新功能** | `"我要实现一个 XXX 功能"` | brainstorming → writing-plans → TDD → implementing |
+| **修复 Bug** | `"XXX 出了 bug，报错是 YYY"` | systematic-debugging → fix → verification |
+| **做一个复杂的多步骤任务** | `"帮我规划并实现 XXX"` | brainstorming → writing-plans → executing-plans |
+| **重构代码** | `"重构 XXX 模块"` | brainstorming → writing-plans → executing |
+| **已有计划要执行** | `"执行 .sisyphus/plans/xxx.md 这个计划"` | executing-plans |
+| **代码审查** | `"帮我 review 刚才的实现"` | requesting-code-review |
+| **收到审查反馈** | `"这是 review 反馈：XXX"` | receiving-code-review |
+
+### 13.2 关键提示词
+
+**强制触发完整流程：**
+
+```
+按照 Superpowers 流程帮我实现 XXX
+```
+
+这会依次触发：brainstorming → plan → TDD → implement → review → verify
+
+**只想规划不执行：**
+
+```
+帮我规划 XXX，先不要动代码
+```
+
+这会触发：brainstorming → writing-plans（停在计划阶段）
+
+**跳过 brainstorming 直接实现：**
+
+```
+需求已经明确：XXX。直接实现
+```
+
+这会触发：writing-plans → TDD → implementing → verification
+
+### 13.3 各 Skill 的触发关键词
+
+| Skill | 触发方式 | 说明 |
+|---|---|---|
+| `brainstorming` | 任何涉及 "新功能"、"创建"、"添加" 的请求**自动触发** | 在实现前先探索需求和设计，是 Superpowers 流程的第一步 |
+| `writing-plans` | "规划"、"计划"、"先别动代码"、"multi-step" | 将需求转化为结构化实现计划，输出到 `.sisyphus/plans/` |
+| `executing-plans` | "执行计划"、"按计划实现" | 读取已有计划文件，分阶段执行并在关键节点审查 |
+| `test-driven-development` | "实现 XXX 功能"（会自动在写代码前先写测试） | 红灯 → 绿灯 → 重构的 TDD 循环 |
+| `systematic-debugging` | "bug"、"报错"、"失败了"、"unexpected behavior" | 结构化调试：复现 → 假设 → 验证 → 修复 |
+| `verification-before-completion` | 实现完成后**自动触发**，或说 "验证一下" | 要求提供证据（测试通过、构建成功）后才算完成 |
+| `requesting-code-review` | "review"、"检查一下"、"code review" | 完成任务后的自我审查 |
+| `receiving-code-review` | 收到 review 反馈时**自动触发** | 要求技术验证而非盲目接受反馈 |
+| `dispatching-parallel-agents` | 说 "并行处理"、"同时做" 或任务有 2+ 独立部分时**自动触发** | 将独立子任务分发给并行 agent |
+| `subagent-driven-development` | 执行含多个独立任务的计划时**自动触发** | 在当前会话中用 subagent 并行执行 |
+| `using-git-worktrees` | "在隔离环境开发"、"feature branch 隔离" | 创建隔离的 git worktree 进行开发（需用户确认） |
+| `finishing-a-development-branch` | "合并"、"提 PR"、"开发完成了" | 引导完成分支的合并/PR/清理 |
+
+### 13.4 最推荐的用法
+
+**完整开发流程（最常用）：**
+
+```
+帮我实现 [具体功能描述]。按照 Superpowers 完整流程走。
+```
+
+agent 会自动执行：
+
+1. **brainstorming** — 探索需求和设计，提出方案让你确认
+2. **writing-plans** — 输出详细实现计划到 `.sisyphus/plans/`
+3. **TDD** — 先写测试，再写实现代码
+4. **implementing** — 按计划执行
+5. **verification** — 运行测试、构建，提供证据证明完成
+6. **code review** — 自我审查实现质量
+
+**简化版（快速迭代）：**
+
+```
+实现 [具体功能]，需求很明确，跳过 brainstorm 直接开始
+```
+
+跳过 brainstorming 阶段，直接进入 plan → TDD → implement。
+
+**纯调试流程：**
+
+```
+XXX 功能出 bug 了，报错信息是 YYY
+```
+
+自动触发 systematic-debugging：复现 → 定位 → 修复 → 验证。
+
+### 13.5 与 omo 原生流程的组合用法
+
+Superpowers 流程可以与 omo（OpenCode + Oh My OpenAgent）的原生流程组合使用：
+
+| 维度 | omo 原生流程（ulw / Prometheus） | Superpowers 流程 |
+|---|---|---|
+| 触发方式 | `ulw:` 或 Tab 切 Prometheus | 提示词中包含实现类意图即自动触发 |
+| 核心差异 | 编排多个 agent 协作 | 单个 agent 内的纪律化 skill 链 |
+| 设计哲学 | agent 团队分工 | 单 agent 流程纪律 |
+| 适合 | 大型复杂任务 | 中小型功能开发、bug 修复 |
+| 可组合性 | ✅ 可以在 ulw 中触发 Superpowers skills | ✅ 可以在 plan 阶段调用 @oracle/@librarian |
+
+**推荐组合用法：**
+
+```
+ulw 按照 Superpowers 流程实现 XXX 功能
+```
+
+这同时激活 omo 的多 agent 编排 + Superpowers 的纪律化 skill 链，效果最佳。
+
+### 13.6 注意事项
+
+- **越具体越好**：`"添加一个支持 JWT 的登录接口"` 比 `"添加登录功能"` 效果好得多
+- **可以说"不"**：如果 brainstorming 阶段提出了你不想要的方案，直接否定，agent 会调整
+- **可以中途改变方向**：`"停，改用方案 B"` — agent 会重新走流程
+- **计划会保存**：`writing-plans` 会把计划写到 `.sisyphus/plans/` 目录，你可以随时让我修改后再执行
+- **不是所有任务都需要完整流程**：简单修改（typo、配置调整）直接描述即可，不需要 brainstorming
+- **记住优先级**：用户指令 > Superpowers skills > 默认系统提示。你在 CLAUDE.md 或对话中的显式指令永远优先
+
+---
+
+## 14. 一句话总结
 
 > **Superpowers 的本质 = 用 14 个 skill 强制你的 AI 走完整的工程流程。** 它不让你写得更快，但让 AI 写出来的代码**值得信任**。代价是节奏慢、对话多。**适合长期项目，不适合一次性脚本。**
 
