@@ -9,6 +9,12 @@
 
 ## 文档导航
 
+### 工程模板
+
+| 文档 | 定位 | 适合 |
+|---|---|---|
+| [Coding Template](coding_template/README.md) | AI 产品工程模板，从 idea 到规格、实施计划、E2E 验收和交付报告 | 启动新产品、新模块或需要 AI 深度参与的软件项目 |
+
 ### Claude Code 系列
 
 | 文档 | 定位 | 适合 |
