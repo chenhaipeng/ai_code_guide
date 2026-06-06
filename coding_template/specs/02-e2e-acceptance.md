@@ -2,6 +2,14 @@
 
 > 目的：定义真实浏览器验收路径。没有本文件，不宣称产品可交付。
 
+## 规格状态
+
+- 状态：[Draft / AI Extracted / Human Confirmed / Frozen / Deprecated]
+- 来源：[Human Input / AI Extracted from Code / AI Draft]
+- 最后更新：[YYYY-MM-DD]
+- 确认人：[姓名或角色]
+- 适用范围：[本 spec 覆盖的产品 / 模块 / 版本]
+
 ## 环境
 
 - 前端地址：[地址]
@@ -52,8 +60,6 @@ Console / Network：
 数据断言：
 
 - [数据库 / 账本 / 审计 / 快照等真实证据]
-
-## 验收报告格式
 
 ## 缺陷分级
 

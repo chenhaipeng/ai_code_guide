@@ -2,6 +2,7 @@
 
 > 项目工程约束模板。由 `.template/AI-BOOTSTRAP.md` 自动安装；或手动复制到根目录并替换 `[变量]`。
 > 行为规则（Think Before Coding / Simplicity First / Surgical Changes / Goal-Driven Execution）由 Superpowers 插件覆盖，此处不重复。
+> 本文件与 `CLAUDE.md` 默认保持相同内容，仅用于适配不同 AI 工具的自动发现入口。修改本文件时必须同步 `CLAUDE.md`，除非项目明确记录只维护其中一个入口。
 
 ## 1. 项目定位
 
@@ -127,6 +128,7 @@ Mock / Contract 参考：[mock 文件路径]
 - **Console / Network**：是否存在新增 JS 错误、401/403/404/500 或接口路径错误。
 - **数据库变更**：是否执行迁移，执行了哪些脚本，若未执行必须明确说明。
 - **未验证项**：无法验证的内容和原因，不能省略。
+- **进度记录**：是否更新 `docs/progress.md`；如未更新，说明原因。
 
 ### 语言约定
 
@@ -155,7 +157,9 @@ Mock / Contract 参考：[mock 文件路径]
 
 详细规格不写在本入口文件中。模板原件位于 `.template/specs/`，项目实际规格写入 `docs/specs/`。
 
-`.template/specs/` 只保存模板原件，不写项目事实；`docs/specs/` 保存项目实际规格，是实现、验证和交付时读取的主要上下文。
+`.template/specs/` 只保存模板原件，不写项目事实；`docs/specs/` 保存项目实际规格，是实现、验证和交付时读取的主要上下文。默认建议 `.template/` 随项目入库；如果团队选择不入库，必须在 `docs/decision.md` 记录模板源路径和重新安装方式。
+
+`docs/decision.md` 记录长期决策；`docs/progress.md` 记录当前阶段、任务状态、验证结果和下一步。阶段切换、长任务中断、E2E 验收和交付前后必须更新 `docs/progress.md`。
 
 AI 首次接手项目时，优先阅读：`.template/AI-BOOTSTRAP.md`，用于判断项目阶段、检查文档缺口并向人类推荐下一步 prompt。
 
@@ -177,9 +181,13 @@ AI 首次接手项目时，优先阅读：`.template/AI-BOOTSTRAP.md`，用于�
 - 前后端实现约束：`.template/specs/50-implementation-constraints.md`
 - 分阶段实施计划：`.template/specs/90-implementation-plan.md`
 
+`20/30/40/50` 虽为按需规格，但涉及数据库、外部服务、权限、支付、额度、异步任务、复杂前后端接口、多角色流程或生产数据链路时，进入实施计划前必须补齐对应设计规格。
+
 ### 使用规则
 
 - 入口文件只保留全局约束和文档索引。
 - 具体页面、接口、数据、架构、前后端规范按需写入 `docs/specs/` 下对应 spec 文件。
 - 如果某个规格填充后超过 20 行，保留在独立 spec 文件中，不要内联回本文件。
 - 实现前**必须**读取当前任务直接相关的 spec 文件。
+- 每个 spec 必须维护规格状态：`Draft / AI Extracted / Human Confirmed / Frozen / Deprecated`。AI 从代码或文档反填的内容只能标记为 `AI Extracted`，不能冒充人类确认。
+- 如果存在 `.template/scripts/validate-template.sh`，模板安装、模板修改或交付前应运行 `.template/scripts/validate-template.sh .template`。

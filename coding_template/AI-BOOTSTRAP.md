@@ -9,11 +9,13 @@
 **⚠️ 前置检查：** 如果当前项目没有 `.template/` 目录，AI **必须**先执行以下操作，不要跳过：
 
 1. 将本文件所在的 `coding_template/` 目录整体复制到目标项目的 `.template/`。
-2. 将 `.template/` 加入目标项目的 `.gitignore`（模板原件不入库，项目实际规格 `docs/specs/` 才入库）。
+2. 检查目标项目的 `.gitignore` 不应忽略 `.template/`。默认建议 `.template/` 随项目入库，确保新环境 clone 后仍能使用 prompt 和 spec 模板；如果团队明确要求模板不入库，必须创建 `docs/decision.md` 后记录模板源路径和重新安装方式。
 3. 检查目标项目根目录是否已有 `CLAUDE.md` 或 `AGENTS.md`：
    - **不存在**：从 `.template/` 复制到根目录，然后根据目标项目的代码结构、配置文件和已有文档，替换模板中的 `[变量]`（至少补齐项目定位、技术方向和本地开发环境）。
    - **已存在**：**不要覆盖**。读取已有内容，根据目标项目实际情况补充缺失的章节（如缺少技术方向、开发环境、验证标准等），保留项目原有的约定和规则不变。
 4. 创建 `docs/specs/` 和 `docs/e2e/verify/` 目录。
+5. 从 `.template/templates/decision.md` 创建 `docs/decision.md`，从 `.template/templates/progress.md` 创建 `docs/progress.md`；已存在则不要覆盖，只补充缺失结构。
+6. 如存在 `.template/scripts/validate-template.sh`，运行它检查 `.template/`。
 
 完成后再继续阅读下方内容。
 
@@ -25,13 +27,17 @@
 
 ```text
 CLAUDE.md / AGENTS.md   ->  全局工程约束和 AI 行为边界（项目根目录）
-.template/               ->  模板原件目录（AI-BOOTSTRAP + prompt + spec 模板 + reference）
+.template/               ->  模板原件目录（AI-BOOTSTRAP + prompt + spec 模板 + reference，默认入库）
   AI-BOOTSTRAP.md        ->  本文件，AI 首次接手时判断项目阶段和文档缺口
   prompt.md              ->  按阶段驱动 AI 生成规格、计划、实现和验收
   specs/                 ->  规格模板原件，不写项目事实
+  templates/             ->  项目运行态文档模板，如 decision / progress
+  scripts/               ->  模板体系校验脚本
   reference/             ->  方法论参考，默认不进入 AI 工作上下文
 docs/specs/              ->  项目实际规格，是实现和验证的主要上下文
 docs/e2e/verify/         ->  真实 E2E 验收报告
+docs/decision.md         ->  决策记录，记录重要产品、技术、实现和验证取舍
+docs/progress.md         ->  当前阶段、任务进度、验证状态和下一步
 ```
 
 规格编号和执行阶段不是同一件事：
@@ -40,6 +46,16 @@ docs/e2e/verify/         ->  真实 E2E 验收报告
 - `10-50` 是按需设计规格，只有涉及对应复杂度时才使用。
 - `90` 是实施计划规格，通常在产品、架构和验收定义之后生成。
 - 实际执行顺序由本文件的"项目阶段判断"决定，不由文件编号直接决定。
+
+工程化必备产物：
+
+- `.template/` 默认随项目入库，不写入 `.gitignore`；如团队要求不入库，必须在 `docs/decision.md` 记录模板源和重装方式。
+- `.template/templates/` 必须包含运行态文档模板，至少覆盖 `decision.md` 和 `progress.md`。
+- `.template/scripts/` 必须包含模板校验入口，默认使用 `validate-template.sh`。
+- `docs/decision.md` 记录长期决策，按 `.template/templates/decision.md` 创建或补齐。
+- `docs/progress.md` 记录当前阶段、任务状态、验证结果和下一步，按 `.template/templates/progress.md` 创建或补齐。
+- 所有 `docs/specs/*.md` 项目实际规格必须维护规格状态：`Draft / AI Extracted / Human Confirmed / Frozen / Deprecated`。
+- 模板安装、模板修改或交付前，如存在 `.template/scripts/validate-template.sh`，必须运行 `.template/scripts/validate-template.sh .template`。
 
 冲突处理优先级：
 
@@ -69,6 +85,7 @@ AI 进入项目后，**不要**立刻实现功能。必须先完成三件事：
 - 项目不适用的 spec，跳过并在 `CLAUDE.md` / `AGENTS.md` 中说明。
 - 从代码和配置中提取信息反填模板，减少人类手动填写。
 - 不阻塞当前工作的缺口，记录为待补项而非阻断项。
+- 阶段切换、长任务中断、E2E 验收和交付前后，更新 `docs/progress.md`。
 
 ---
 
@@ -84,15 +101,17 @@ AI 进入项目后，先判断项目是否已有 `.template/` 目录，再选择
 
 1. 找到模板源目录。如果用户通过 `@coding_template/AI-BOOTSTRAP.md` 启动，模板源是 `coding_template/`。否则询问人类提供模板源路径。
 2. 将整个模板源目录复制到目标项目的 `.template/`。
-3. 将 `.template/` 加入目标项目的 `.gitignore`（模板原件不入库）。
-4. 检查目标项目根目录的 `CLAUDE.md` 和 `AGENTS.md`：
+3. 创建 `docs/specs/`，用于保存项目实际规格。
+4. 创建 `docs/e2e/verify/`，用于保存真实 E2E 验收报告。
+5. 从 `.template/templates/decision.md` 创建 `docs/decision.md`，已存在则补充缺失结构，不覆盖已有决策。
+6. 从 `.template/templates/progress.md` 创建 `docs/progress.md`，已存在则补充缺失结构，不覆盖已有进度。
+7. 检查 `.gitignore` 不应忽略 `.template/`。如果团队明确要求模板不入库，必须在 `docs/decision.md` 或等价文件中记录模板源路径和重新安装方式。
+8. 如存在 `.template/scripts/validate-template.sh`，运行它检查 `.template/`。
+9. 检查目标项目根目录的 `CLAUDE.md` 和 `AGENTS.md`：
    - **不存在**：从 `.template/` 复制到根目录，然后根据目标项目的代码结构和配置文件，替换模板中的 `[变量]`。
    - **已存在**：**不要覆盖**。读取已有内容，根据目标项目实际情况补充缺失章节，保留原有约定不变。
-5. 创建 `docs/specs/`，用于保存项目实际规格。
-6. 创建 `docs/e2e/verify/`，用于保存真实 E2E 验收报告。
-7. 创建 `docs/decision.md` 或等价决策记录文件。
 
-安装完成后，AI **必须**提醒人类确认根目录 `CLAUDE.md` / `AGENTS.md` 中的项目定位、技术方向和本地开发环境是否正确，再继续阶段判断。
+安装完成后，AI **必须暂停**，提醒人类确认根目录 `CLAUDE.md` / `AGENTS.md` 中的项目定位、技术方向和本地开发环境是否正确。未经人类确认，不进入下一阶段判断。
 
 安装过程**不允许**自动决定：
 
@@ -138,6 +157,7 @@ AI 进入项目后，先判断项目是否已有 `.template/` 目录，再选择
 3. `docs/specs/00-idea-brief.md`（如不存在，读取 `.template/specs/00-idea-brief.md` 了解模板结构）
 4. `docs/specs/01-product-spec.md`（如不存在，读取 `.template/specs/01-product-spec.md` 了解模板结构）
 5. `docs/specs/02-e2e-acceptance.md`（如不存在，读取 `.template/specs/02-e2e-acceptance.md` 了解模板结构）
+6. `docs/progress.md`（如不存在，读取 `.template/templates/progress.md` 了解模板结构）
 
 路径规则：`.template/specs/` 是模板原件目录，不写项目事实；`docs/specs/` 是项目实际规格目录，是实现、验证和交付时读取的主要上下文。优先读取 `docs/specs/`，仅在项目规格尚未生成时回退到 `.template/specs/`。
 
@@ -157,7 +177,7 @@ AI 进入项目后，先判断项目是否已有 `.template/` 目录，再选择
 
 | 阶段 | 判断标准 | 推荐下一步 | 主要产物 |
 | --- | --- | --- | --- |
-| 阶段 0A：模板安装 | 项目无 `.template/` 目录 | 执行本文件 §3A | `.template/` + 根目录 CLAUDE.md |
+| 阶段 0A：模板安装 | 项目无 `.template/` 目录 | 执行本文件 §3A | `.template/` + 根目录 CLAUDE.md / AGENTS.md + `docs/decision.md` + `docs/progress.md` + 模板校验结果 |
 | 阶段 0B：已有项目适配 | 有代码或文档，但未使用模板体系 | 执行本文件 §3B，从项目提取信息反填模板 | 适配后的 CLAUDE.md + 按需 spec 初稿 |
 | Idea 阶段 | 只有想法，没有产品规格 | 使用 `.template/prompt.md` 阶段 1 | `docs/specs/00-idea-brief.md` |
 | 产品规格阶段 | 有 idea，但页面/用户路径不清 | 使用 `.template/prompt.md` 阶段 2 | `docs/specs/01-product-spec.md` |
@@ -173,6 +193,8 @@ AI 进入项目后，先判断项目是否已有 `.template/` 目录，再选择
 
 阶段表决定实际执行顺序。规格文件编号只表示核心程度和归类，不代表必须按编号从小到大执行。
 
+`20/30/40/50` 虽为按需规格，但不能由 AI 为了加快实现自行跳过。凡涉及数据库、外部服务、权限、支付、额度、异步任务、复杂前后端接口、多角色流程或生产数据链路，进入实施计划前必须补齐对应设计规格。
+
 ---
 
 ## 6. 必要文档自检
@@ -187,10 +209,13 @@ AI **必须**输出一份文档状态表：
 | 02-e2e-acceptance.md | 是/否 | 是/否 | [说明] | [建议] |
 | 03-delivery-report.md | 是/否 | 是/否 | [说明] | [建议] |
 | 按需 specs | 是/否 | 是/否 | [说明] | [建议] |
+| docs/decision.md | 是/否 | 是/否 | [说明] | [建议] |
+| docs/progress.md | 是/否 | 是/否 | [说明] | [建议] |
 
 判断"足够"的标准：
 
 - 文件不是空模板，关键 `[变量]` 已被项目内容替换。
+- spec 有明确规格状态，且 AI 反填内容标记为 `AI Extracted` 或 `Draft`，不能冒充 `Human Confirmed`。
 - 有明确验收标准，不只是描述愿景。
 - 涉及实现的内容能追溯到页面、接口、数据或 E2E 用例。
 - 如果缺失，AI 应说明应补哪个文件，而不是直接开始实现。
@@ -207,6 +232,7 @@ AI **必须**检查或询问：
 - 测试账号是否明确。
 - 构建命令是否明确。
 - E2E 验收报告目录是否明确，默认应为 `docs/e2e/verify/`。
+- 是否能运行 `.template/scripts/validate-template.sh .template`（如脚本存在）。
 
 如果环境信息缺失，AI 应先建议补充 `CLAUDE.md` / `AGENTS.md` 的本地开发环境章节。
 
@@ -249,11 +275,13 @@ AI 可以自行补齐以下低风险缺口：
 
 - 创建缺失的 `docs/specs/` 目录。
 - 将 `coding_template/` 整体复制到 `.template/`。
-- 将 `.template/` 加入目标项目的 `.gitignore`。
+- 检查 `.gitignore` 不应忽略 `.template/`；如团队要求不入库，记录模板源路径和重新安装方式。
 - 如果根目录没有 `CLAUDE.md` / `AGENTS.md`，从 `.template/` 复制并根据项目代码结构和配置替换 `[变量]`。
 - 如果根目录已有 `CLAUDE.md` / `AGENTS.md`，补充缺失章节，不覆盖已有内容。
 - 创建 `docs/e2e/verify/` 目录。
-- 创建空的 `docs/decision.md` 或等价决策记录文件。
+- 从 `.template/templates/decision.md` 创建或补齐 `docs/decision.md`。
+- 从 `.template/templates/progress.md` 创建或补齐 `docs/progress.md`。
+- 运行 `.template/scripts/validate-template.sh .template` 检查模板体系（如脚本存在）。
 
 ### 已有项目：从代码和配置反填
 
@@ -267,6 +295,7 @@ AI **可以**从项目现有信息中自动提取并填入以下内容：
 - 从 `README.md` 提取产品描述 → 填入 `CLAUDE.md` §1 和 `00-idea-brief.md`。
 
 反填生成的内容**必须**标记为"AI 从代码提取，待人类确认"，不能直接视为已确认的项目规格。
+对应 spec 的规格状态必须设置为 `AI Extracted`，确认人留空或标记为待确认。
 
 ### 禁止自动决定
 
@@ -280,16 +309,36 @@ AI **不得**自行补齐以下内容，必须询问人类：
 
 ---
 
-## 10. 最小启动 Prompt
+## 10. 规格更新规则
+
+增量迭代时，AI 应先写 Delta Spec，描述本次变化、影响范围和回归验收范围。Delta Spec 不是长期事实的替代品。
+
+以下变化必须同步回写对应全量 spec：
+
+- 目标用户、MVP 范围、明确不做项变化 → `00-idea-brief.md`
+- 页面、用户路径、字段、状态、验收标准变化 → `01-product-spec.md`
+- E2E 路径、断言、缺陷分级、验收报告要求变化 → `02-e2e-acceptance.md`
+- 架构边界、数据模型、API 契约、实现约束变化 → `20/30/40/50` 对应 spec
+- Phase 范围、验证命令、E2E 路径变化 → `90-implementation-plan.md`
+
+只影响一次性交付说明、临时验证结果或短期风险的内容，保留在 Delta Spec、verify 报告或 delivery report 中即可。
+
+每次完成上述回写后，必须更新 `docs/progress.md` 的当前阶段、已完成、进行中、未完成、最新验证和下一步建议。
+
+---
+
+## 11. 最小启动 Prompt
 
 ```text
 请先读取 `@coding_template/AI-BOOTSTRAP.md` 或项目中的 `.template/AI-BOOTSTRAP.md`，不要直接实现。
 
 如果项目中没有 `.template/` 目录，请先将 `coding_template/` 整体复制到项目的 `.template/` 目录，
-然后从 `.template/` 复制 CLAUDE.md 和 AGENTS.md 到项目根目录。
+检查 `.gitignore` 不应忽略 `.template/`，然后从 `.template/` 复制 CLAUDE.md 和 AGENTS.md 到项目根目录。
+从 `.template/templates/` 创建 docs/decision.md 和 docs/progress.md，已存在则补齐缺失结构但不要覆盖已有内容。
+如果存在 `.template/scripts/validate-template.sh`，运行 `.template/scripts/validate-template.sh .template`。
 
 按 AI-BOOTSTRAP.md 要求判断当前项目阶段，检查必要文档和验证条件，列出缺口，
-并推荐下一步应该使用 `.template/prompt.md` 中的哪个阶段 prompt。
+并推荐下一步应该使用 `.template/prompt.md` 中的哪个阶段 prompt。安装或反填完成后先暂停，等待人类确认后再进入下一阶段。
 
 如果是已有项目（有代码或文档），按 §3B 从项目现有信息中提取内容反填模板。
 

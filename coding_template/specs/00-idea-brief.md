@@ -2,6 +2,14 @@
 
 > 目的：把模糊 idea 压缩成可执行的产品边界。没有本文件，不进入产品规格阶段。
 
+## 规格状态
+
+- 状态：[Draft / AI Extracted / Human Confirmed / Frozen / Deprecated]
+- 来源：[Human Input / AI Extracted from Code / AI Draft]
+- 最后更新：[YYYY-MM-DD]
+- 确认人：[姓名或角色]
+- 适用范围：[本 spec 覆盖的产品 / 模块 / 版本]
+
 ## 一句话定义
 
 [产品名称] 帮助 [目标用户] 在 [场景] 中完成 [核心任务]，获得 [明确结果]。

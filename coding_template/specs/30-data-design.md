@@ -2,6 +2,14 @@
 
 > 目的：定义数据模型、数据链路、快照和审计规则。
 
+## 规格状态
+
+- 状态：[Draft / AI Extracted / Human Confirmed / Frozen / Deprecated]
+- 来源：[Human Input / AI Extracted from Code / AI Draft]
+- 最后更新：[YYYY-MM-DD]
+- 确认人：[姓名或角色]
+- 适用范围：[本 spec 覆盖的产品 / 模块 / 版本]
+
 ## 核心数据闭环
 
 ```text

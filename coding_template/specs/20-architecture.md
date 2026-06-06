@@ -2,6 +2,14 @@
 
 > 目的：定义系统边界、模块职责和技术决策。没有本文件，不进入实施计划。
 
+## 规格状态
+
+- 状态：[Draft / AI Extracted / Human Confirmed / Frozen / Deprecated]
+- 来源：[Human Input / AI Extracted from Code / AI Draft]
+- 最后更新：[YYYY-MM-DD]
+- 确认人：[姓名或角色]
+- 适用范围：[本 spec 覆盖的产品 / 模块 / 版本]
+
 ## 系统概览
 
 ```text

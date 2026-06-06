@@ -16,16 +16,18 @@
 
 ```text
 Idea 压缩
-→ 原型定义
 → 产品规格
-→ AI 行为宪法 (AGENTS.md)
-→ 工程 Harness
+→ 原型定义（按需）
+→ AI 行为宪法与工程 Harness (AGENTS.md / CLAUDE.md)
 → 系统设计
-→ 实施计划
 → E2E 验收规范
+→ 实施计划
 → 分阶段开发
+→ 原型对齐（按需）
 → 验证交付
 ```
+
+实际执行顺序以 `.template/AI-BOOTSTRAP.md` 的阶段表为准。本文件是方法论参考，不覆盖项目中的 `AGENTS.md` / `CLAUDE.md`、`docs/specs/` 或 `.template/prompt.md`。
 
 核心原则：**前重后轻**。上游投入越充分（原型、规格、约束），下游 AI 执行越精准、越少返工。
 

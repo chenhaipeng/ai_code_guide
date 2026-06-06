@@ -2,6 +2,14 @@
 
 > 目的：定义产品体验、视觉方向和原型复用边界。C 端产品必须填写。
 
+## 规格状态
+
+- 状态：[Draft / AI Extracted / Human Confirmed / Frozen / Deprecated]
+- 来源：[Human Input / AI Extracted from Code / AI Draft]
+- 最后更新：[YYYY-MM-DD]
+- 确认人：[姓名或角色]
+- 适用范围：[本 spec 覆盖的产品 / 模块 / 版本]
+
 ## 原型文件
 
 - 原型路径：[路径]
