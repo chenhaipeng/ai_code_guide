@@ -54,10 +54,11 @@ your-project/
 ## 最小使用流程
 
 1. 在 AI 工具中发送启动 Prompt（见下方），AI 会将 `coding_template/` 复制到目标项目的 `.template/` 目录。
-2. AI 提醒你补齐根目录 `CLAUDE.md` / `AGENTS.md` 中的项目定位、技术方向和本地开发环境。
-3. AI 根据 `AI-BOOTSTRAP.md` 输出项目阶段、文档缺口、验证条件和推荐 prompt。
-4. 你确认后，按 `.template/prompt.md` 中对应阶段的 prompt 生成或补齐规格。
-5. 每个阶段完成后写入对应规格、验证报告或交付报告。
+2. AI 将 `.template/` 加入 `.gitignore`（模板原件不入库，项目实际规格 `docs/specs/` 才入库）。
+3. AI 检查根目录 `CLAUDE.md` / `AGENTS.md`：不存在则根据项目代码创建，已存在则补充缺失章节。
+4. AI 根据 `AI-BOOTSTRAP.md` 输出项目阶段、文档缺口、验证条件和推荐 prompt。
+5. 你确认后，按 `.template/prompt.md` 中对应阶段的 prompt 生成或补齐规格。
+6. 每个阶段完成后写入对应规格、验证报告或交付报告。
 
 ## AI 启动 Prompt
 

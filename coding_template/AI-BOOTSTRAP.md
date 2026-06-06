@@ -9,8 +9,11 @@
 **⚠️ 前置检查：** 如果当前项目没有 `.template/` 目录，AI **必须**先执行以下操作，不要跳过：
 
 1. 将本文件所在的 `coding_template/` 目录整体复制到目标项目的 `.template/`。
-2. 从 `.template/` 复制 `CLAUDE.md` 和 `AGENTS.md` 到项目根目录。
-3. 创建 `docs/specs/` 和 `docs/e2e/verify/` 目录。
+2. 将 `.template/` 加入目标项目的 `.gitignore`（模板原件不入库，项目实际规格 `docs/specs/` 才入库）。
+3. 检查目标项目根目录是否已有 `CLAUDE.md` 或 `AGENTS.md`：
+   - **不存在**：从 `.template/` 复制到根目录，然后根据目标项目的代码结构、配置文件和已有文档，替换模板中的 `[变量]`（至少补齐项目定位、技术方向和本地开发环境）。
+   - **已存在**：**不要覆盖**。读取已有内容，根据目标项目实际情况补充缺失的章节（如缺少技术方向、开发环境、验证标准等），保留项目原有的约定和规则不变。
+4. 创建 `docs/specs/` 和 `docs/e2e/verify/` 目录。
 
 完成后再继续阅读下方内容。
 
@@ -81,12 +84,15 @@ AI 进入项目后，先判断项目是否已有 `.template/` 目录，再选择
 
 1. 找到模板源目录。如果用户通过 `@coding_template/AI-BOOTSTRAP.md` 启动，模板源是 `coding_template/`。否则询问人类提供模板源路径。
 2. 将整个模板源目录复制到目标项目的 `.template/`。
-3. 从 `.template/` 复制 `CLAUDE.md` 和 `AGENTS.md` 到项目根目录。
-4. 创建 `docs/specs/`，用于保存项目实际规格。
-5. 创建 `docs/e2e/verify/`，用于保存真实 E2E 验收报告。
-6. 创建 `docs/decision.md` 或等价决策记录文件。
+3. 将 `.template/` 加入目标项目的 `.gitignore`（模板原件不入库）。
+4. 检查目标项目根目录的 `CLAUDE.md` 和 `AGENTS.md`：
+   - **不存在**：从 `.template/` 复制到根目录，然后根据目标项目的代码结构和配置文件，替换模板中的 `[变量]`。
+   - **已存在**：**不要覆盖**。读取已有内容，根据目标项目实际情况补充缺失章节，保留原有约定不变。
+5. 创建 `docs/specs/`，用于保存项目实际规格。
+6. 创建 `docs/e2e/verify/`，用于保存真实 E2E 验收报告。
+7. 创建 `docs/decision.md` 或等价决策记录文件。
 
-安装完成后，AI **必须**提醒人类先补齐根目录 `CLAUDE.md` / `AGENTS.md` 中的项目定位、技术方向和本地开发环境，再继续阶段判断。
+安装完成后，AI **必须**提醒人类确认根目录 `CLAUDE.md` / `AGENTS.md` 中的项目定位、技术方向和本地开发环境是否正确，再继续阶段判断。
 
 安装过程**不允许**自动决定：
 
@@ -243,7 +249,9 @@ AI 可以自行补齐以下低风险缺口：
 
 - 创建缺失的 `docs/specs/` 目录。
 - 将 `coding_template/` 整体复制到 `.template/`。
-- 从 `.template/` 复制 `CLAUDE.md` 和 `AGENTS.md` 到项目根目录。
+- 将 `.template/` 加入目标项目的 `.gitignore`。
+- 如果根目录没有 `CLAUDE.md` / `AGENTS.md`，从 `.template/` 复制并根据项目代码结构和配置替换 `[变量]`。
+- 如果根目录已有 `CLAUDE.md` / `AGENTS.md`，补充缺失章节，不覆盖已有内容。
 - 创建 `docs/e2e/verify/` 目录。
 - 创建空的 `docs/decision.md` 或等价决策记录文件。
 
