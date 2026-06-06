@@ -119,11 +119,11 @@ AI 进入项目后，先判断项目是否已有 `.template/` 目录，再选择
 
 1. `CLAUDE.md` 或 `AGENTS.md`（项目根目录）
 2. `.template/prompt.md`
-3. `docs/specs/00-idea-brief.md` 或等价 idea 文档
-4. `docs/specs/01-product-spec.md` 或等价产品规格
-5. `docs/specs/02-e2e-acceptance.md` 或等价 E2E 验收规范
+3. `docs/specs/00-idea-brief.md`（如不存在，读取 `.template/specs/00-idea-brief.md` 了解模板结构）
+4. `docs/specs/01-product-spec.md`（如不存在，读取 `.template/specs/01-product-spec.md` 了解模板结构）
+5. `docs/specs/02-e2e-acceptance.md`（如不存在，读取 `.template/specs/02-e2e-acceptance.md` 了解模板结构）
 
-路径规则：`.template/specs/` 是模板原件目录，不写项目事实；`docs/specs/` 是项目实际规格目录，是实现、验证和交付时读取的主要上下文。
+路径规则：`.template/specs/` 是模板原件目录，不写项目事实；`docs/specs/` 是项目实际规格目录，是实现、验证和交付时读取的主要上下文。优先读取 `docs/specs/`，仅在项目规格尚未生成时回退到 `.template/specs/`。
 
 如果项目没有 `docs/specs/`，检查是否有：
 
