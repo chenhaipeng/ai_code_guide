@@ -66,7 +66,11 @@ your-project/
 请先读取 `@coding_template/AI-BOOTSTRAP.md` 或项目中的 `.template/AI-BOOTSTRAP.md`，不要直接实现。
 
 如果项目中没有 `.template/` 目录，请先将 `coding_template/` 整体复制到项目的 `.template/` 目录，
-然后从 `.template/` 复制 CLAUDE.md 和 AGENTS.md 到项目根目录。
+将 `.template/` 加入 `.gitignore`。
+
+然后检查根目录的 CLAUDE.md 和 AGENTS.md：
+- 如果不存在，从 `.template/` 复制到根目录，并根据项目代码替换 [变量]。
+- 如果已存在，不要覆盖，只补充缺失章节。
 
 按 AI-BOOTSTRAP.md 要求判断当前项目阶段，检查必要文档和验证条件，列出缺口，
 并推荐下一步应该使用 `.template/prompt.md` 中的哪个阶段 prompt。

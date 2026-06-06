@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-> 项目工程约束模板。新项目复制此文件到根目录，替换 `[变量]` 即可。
+> 项目工程约束模板。由 `.template/AI-BOOTSTRAP.md` 自动安装；或手动复制到根目录并替换 `[变量]`。
 > 行为规则（Think Before Coding / Simplicity First / Surgical Changes / Goal-Driven Execution）由 Superpowers 插件覆盖，此处不重复。
 
 ## 1. 项目定位
