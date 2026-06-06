@@ -1,6 +1,6 @@
 # AI 产品工程 Prompt 模板
 
-> 目的：驱动 AI 从 idea 到交付产品。具体内容写入 `docs/template/specs/` 对应模板，避免把所有细节塞进 prompt。
+> 目的：驱动 AI 从 idea 到交付产品。具体内容写入 `.template/specs/` 对应模板，避免把所有细节塞进 prompt。
 >
 > 原则：只读取当前阶段相关文档；做完立刻验证；不验证不进入下一阶段。
 
@@ -16,7 +16,7 @@
 解决问题：[痛点]
 带来结果：[用户获得什么]
 
-请按 `docs/template/specs/00-idea-brief.md` 生成 Idea Brief。
+请按 `.template/specs/00-idea-brief.md` 生成 Idea Brief。
 
 要求：
 1. 压缩成一句话产品定义
@@ -35,7 +35,7 @@
 ```text
 Idea Brief：[路径]
 
-请按 `docs/template/specs/01-product-spec.md` 生成 Product Spec。
+请按 `.template/specs/01-product-spec.md` 生成 Product Spec。
 
 要求：
 1. 定义用户角色和核心用户路径
@@ -55,7 +55,7 @@ Idea Brief：[路径]
 
 Product Spec：[路径]
 
-请按 `docs/template/specs/10-ux-prototype.md` 生成 UX / Prototype Spec，并创建可交互原型。
+请按 `.template/specs/10-ux-prototype.md` 生成 UX / Prototype Spec，并创建可交互原型。
 
 要求：
 1. 定义视觉方向、页面结构、关键组件和响应式规则
@@ -87,10 +87,10 @@ AGENTS.md / CLAUDE.md：[路径]
 - 哪些能力第一版明确不做
 
 然后按需生成：
-- 架构：`docs/template/specs/20-architecture.md`
-- 数据设计：`docs/template/specs/30-data-design.md`
-- API 与页面接口：`docs/template/specs/40-api-and-pages.md`
-- 实现约束：`docs/template/specs/50-implementation-constraints.md`
+- 架构：`.template/specs/20-architecture.md`
+- 数据设计：`.template/specs/30-data-design.md`
+- API 与页面接口：`.template/specs/40-api-and-pages.md`
+- 实现约束：`.template/specs/50-implementation-constraints.md`
 
 验证：产品规格里的字段、页面、操作，都必须能在架构、数据、API 或实现约束中找到来源。
 ```
@@ -103,7 +103,7 @@ AGENTS.md / CLAUDE.md：[路径]
 Product Spec：[路径]
 Architecture / API / Data Specs：[路径]
 
-请按 `docs/template/specs/02-e2e-acceptance.md` 生成开发前 E2E 验收规范。
+请按 `.template/specs/02-e2e-acceptance.md` 生成开发前 E2E 验收规范。
 
 要求：
 1. 按核心用户路径拆分 E2E 用例
@@ -126,7 +126,7 @@ Architecture / API / Data Specs：[路径]
 - E2E Acceptance：[路径]
 - 相关 Architecture / Data / API / UX specs：[路径]
 
-请按 `docs/template/specs/90-implementation-plan.md` 生成实施计划。
+请按 `.template/specs/90-implementation-plan.md` 生成实施计划。
 
 要求：
 1. 每个 Phase 是独立可验证的交付单元
@@ -189,7 +189,7 @@ Architecture / API / Data Specs：[路径]
 ## 阶段 9：全量 E2E 验收
 
 ```text
-请按 `docs/template/specs/02-e2e-acceptance.md` 和项目实际 E2E 规范执行全量验收。
+请按 `.template/specs/02-e2e-acceptance.md` 和项目实际 E2E 规范执行全量验收。
 
 前端地址：[地址]
 后端地址：[地址]
@@ -212,7 +212,7 @@ Architecture / API / Data Specs：[路径]
 ## 阶段 10：Delivery Report
 
 ```text
-请按 `docs/template/specs/03-delivery-report.md` 生成交付报告。
+请按 `.template/specs/03-delivery-report.md` 生成交付报告。
 
 输入：
 - Implementation Plan：[路径]

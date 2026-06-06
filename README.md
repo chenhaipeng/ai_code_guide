@@ -66,12 +66,12 @@
 ```text
 项目根/
 ├── CLAUDE.md / AGENTS.md   ← AI 行为宪法（全局约束）
-├── docs/template/           ← 模板原件（ai-bootstrap + prompt + spec 模板）
+├── .template/              ← 模板原件（AI-BOOTSTRAP + prompt + spec 模板）
 ├── docs/specs/              ← 项目实际规格（实现和验证的主要上下文）
 └── docs/e2e/verify/         ← 真实 E2E 验收报告
 ```
 
-AI 进入项目后先读 `ai-bootstrap.md` 自主判断阶段、检查缺口，人类再按 `prompt.md` 对应阶段推进。详见 [Coding Template README](coding_template/README.md)。
+AI 进入项目后先读 `.template/AI-BOOTSTRAP.md` 自主判断阶段、检查缺口，人类再按 `prompt.md` 对应阶段推进。详见 [Coding Template README](coding_template/README.md)。
 
 ### Superpowers — 14 个 Skill 触发方式
 
@@ -123,7 +123,7 @@ Tab 切到 Prometheus（plan模式） → 描述任务   ← 规划入口（Prom
 你的情况？
 │
 ├─ 启动新产品，想从 idea 到交付用 AI 全流程驱动
-│   └─ Coding Template → 复制模板到项目 → ai-bootstrap.md 启动
+│   └─ Coding Template → AI 复制到 .template/ → AI-BOOTSTRAP.md 启动
 │
 ├─ 主要用 Claude，希望最稳定
 │   └─ Claude Code → 核心概念 → 最佳实践

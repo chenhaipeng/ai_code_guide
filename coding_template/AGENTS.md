@@ -5,6 +5,8 @@
 
 ## 1. 项目定位
 
+> 详细 Idea 分析（目标用户拆分、痛点论证、竞品对标、MVP 范围、成功标准）见 `docs/specs/00-idea-brief.md`。
+
 [产品名称] 是 [一句话描述产品边界]。
 
 目标用户：[描述用户群体]
@@ -151,34 +153,33 @@ Mock / Contract 参考：[mock 文件路径]
 
 ## 6. 规格模板索引
 
-详细规格不写在本入口文件中。创建项目时，从 `docs/template/specs/` 复制对应模板，并在 `docs/specs/` 中补全为项目实际规格。
+详细规格不写在本入口文件中。模板原件位于 `.template/specs/`，项目实际规格写入 `docs/specs/`。
 
-`docs/template/specs/` 只保存模板原件，不写项目事实；`docs/specs/` 保存项目实际规格，是实现、验证和交付时读取的主要上下文。
+`.template/specs/` 只保存模板原件，不写项目事实；`docs/specs/` 保存项目实际规格，是实现、验证和交付时读取的主要上下文。
 
-AI 首次接手项目时，优先阅读：`docs/template/ai-bootstrap.md`，用于判断项目阶段、检查文档缺口并向人类推荐下一步 prompt。
+AI 首次接手项目时，优先阅读：`.template/AI-BOOTSTRAP.md`，用于判断项目阶段、检查文档缺口并向人类推荐下一步 prompt。
 
 ### 核心必备
 
 任何产品都需要回答这 4 类问题：
 
-1. Idea Brief：`docs/template/specs/00-idea-brief.md`
-2. Product Spec：`docs/template/specs/01-product-spec.md`
-3. E2E Acceptance Spec：`docs/template/specs/02-e2e-acceptance.md`
-4. Delivery Report：`docs/template/specs/03-delivery-report.md`
+1. Idea Brief：`.template/specs/00-idea-brief.md`（模板）/ `docs/specs/00-idea-brief.md`（项目实际）
+2. Product Spec：`.template/specs/01-product-spec.md`（模板）/ `docs/specs/01-product-spec.md`（项目实际）
+3. E2E Acceptance Spec：`.template/specs/02-e2e-acceptance.md`（模板）/ `docs/specs/02-e2e-acceptance.md`（项目实际）
+4. Delivery Report：`.template/specs/03-delivery-report.md`（模板）/ `docs/specs/03-delivery-report.md`（项目实际）
 
 ### 按需使用
 
-- UI / 原型 / C 端体验：`docs/template/specs/10-ux-prototype.md`
-- 架构 / 模块边界 / 技术选型：`docs/template/specs/20-architecture.md`
-- 数据模型 / 数据链路：`docs/template/specs/30-data-design.md`
-- API 契约 / 页面接口映射：`docs/template/specs/40-api-and-pages.md`
-- 前后端实现约束：`docs/template/specs/50-implementation-constraints.md`
-- 分阶段实施计划：`docs/template/specs/90-implementation-plan.md`
+- UI / 原型 / C 端体验：`.template/specs/10-ux-prototype.md`
+- 架构 / 模块边界 / 技术选型：`.template/specs/20-architecture.md`
+- 数据模型 / 数据链路：`.template/specs/30-data-design.md`
+- API 契约 / 页面接口映射：`.template/specs/40-api-and-pages.md`
+- 前后端实现约束：`.template/specs/50-implementation-constraints.md`
+- 分阶段实施计划：`.template/specs/90-implementation-plan.md`
 
 ### 使用规则
 
 - 入口文件只保留全局约束和文档索引。
 - 具体页面、接口、数据、架构、前后端规范按需写入 `docs/specs/` 下对应 spec 文件。
 - 如果某个规格填充后超过 20 行，保留在独立 spec 文件中，不要内联回本文件。
-- 实现前必须读取当前任务直接相关的 spec 文件。
-- 禁止一次性读取所有 spec 文件，避免上下文干扰。
+- 实现前**必须**读取当前任务直接相关的 spec 文件。
