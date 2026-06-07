@@ -21,9 +21,9 @@
 | `AGENTS.md` | AI 工具 | 项目级工程约束入口，适配支持 `AGENTS.md` 的工具。 |
 | `CLAUDE.md` | Claude Code | 项目级工程约束入口，适配 Claude Code。 |
 | `AI-BOOTSTRAP.md` | AI | AI 首次接手项目时的启动流程：判断阶段、检查缺口、推荐下一步。 |
-| `prompt.md` | 人类 / AI | 分阶段 prompt 驱动器，从 idea 到交付。 |
+| `prompt.md` | 人类 / AI | 分阶段 prompt 模板原件，从 idea 到交付，不写项目事实。 |
 | `specs/` | 人类 / AI | 各阶段规格模板，按需复制和补全。 |
-| `templates/` | AI | 项目运行态文档模板，如决策记录和进度记录。 |
+| `templates/` | AI | 项目运行态文档模板，如决策记录、进度记录和运行态 prompt。 |
 | `scripts/` | AI / 人类 | 模板体系校验脚本。 |
 | `reference/` | 人类 | 方法论参考，不是 AI 每次必须读取的执行上下文。 |
 
@@ -47,6 +47,7 @@ your-project/
 │   ├── scripts/
 │   └── reference/
 ├── docs/
+│   ├── prompt.md           ← 目标项目运行态 prompt（根据项目自身 prompt 和当前阶段生成）
 │   ├── specs/              ← 项目实际规格（从模板补全后存入）
 │   ├── e2e/verify/         ← 真实 E2E 验收报告
 │   ├── decision.md         ← 决策记录，记录技术、产品和实现取舍
@@ -56,6 +57,7 @@ your-project/
 其中：
 
 - `.template/` 保存模板原件，不写项目事实。AI 读取 `.template/AI-BOOTSTRAP.md` 启动诊断。默认建议随项目入库，确保新环境 clone 后仍能使用模板。
+- `docs/prompt.md` 保存目标项目运行态 prompt，由 AI 根据目标项目已有 prompt、项目约束、进度和当前阶段生成；已有则补充更新，不覆盖项目原有约定。
 - `docs/specs/` 保存目标项目实际补全后的规格，是开发和验收时读取的主要上下文。
 - `docs/progress.md` 保存跨 session 的当前状态，长任务中断、阶段切换和交付前后必须更新。
 - `CLAUDE.md` / `AGENTS.md` 放在项目根目录，供 AI 工具自动发现。
@@ -65,10 +67,10 @@ your-project/
 1. 在 AI 工具中发送启动 Prompt（见下方），AI 会将 `coding_template/` 复制到目标项目的 `.template/` 目录。
 2. AI 检查 `.gitignore` 不应忽略 `.template/`；如果团队明确要求模板原件不入库，必须在 `docs/decision.md` 记录模板源路径和重新安装方式。
 3. AI 检查根目录 `CLAUDE.md` / `AGENTS.md`：不存在则根据项目代码创建，已存在则补充缺失章节。
-4. AI 从 `.template/templates/` 创建 `docs/decision.md` 和 `docs/progress.md`。
+4. AI 从 `.template/templates/` 创建 `docs/decision.md`、`docs/progress.md` 和 `docs/prompt.md`；`docs/prompt.md` 必须融合目标项目自身已有 prompt。
 5. AI 运行 `.template/scripts/validate-template.sh .template` 检查模板体系。
-6. AI 根据 `AI-BOOTSTRAP.md` 输出项目阶段、文档缺口、验证条件和推荐 prompt，并暂停等待你确认。
-7. 你确认后，按 `.template/prompt.md` 中对应阶段的 prompt 生成或补齐规格。
+6. AI 根据 `AI-BOOTSTRAP.md` 输出项目阶段、文档缺口、验证条件，并把 `.template/prompt.md` 中对应阶段改写进 `docs/prompt.md`。
+7. 你确认后，按 `docs/prompt.md` 中的当前推荐 prompt 生成或补齐规格。
 8. 每个阶段完成后写入对应规格、验证报告或交付报告，并更新 `docs/progress.md`。
 
 ## AI 启动 Prompt
@@ -79,14 +81,15 @@ your-project/
 如果项目中没有 `.template/` 目录，请先将 `coding_template/` 整体复制到项目的 `.template/` 目录，
 检查 `.gitignore` 不应忽略 `.template/`。如果团队要求模板不入库，必须记录模板源和重装方式。
 
-然后从 `.template/templates/` 创建 docs/decision.md 和 docs/progress.md（已存在则不要覆盖，只补充缺失结构）。
-
 然后检查根目录的 CLAUDE.md 和 AGENTS.md：
 - 如果不存在，从 `.template/` 复制到根目录，并根据项目代码替换 [变量]。
 - 如果已存在，不要覆盖，只补充缺失章节。
 
+然后从 `.template/templates/` 创建 docs/decision.md、docs/progress.md 和 docs/prompt.md（已存在则不要覆盖，只补充缺失结构）。
+docs/prompt.md 必须根据目标项目自身已有 prompt、CLAUDE.md / AGENTS.md、docs/progress.md 和当前阶段相关规格生成。
+
 按 AI-BOOTSTRAP.md 要求判断当前项目阶段，检查必要文档和验证条件，列出缺口，
-并推荐下一步应该使用 `.template/prompt.md` 中的哪个阶段 prompt。安装或反填完成后先暂停，等待我确认后再进入下一阶段。
+并推荐下一步应该使用 `.template/prompt.md` 中的哪个阶段 prompt，同时写入或更新 docs/prompt.md 的当前推荐 prompt。安装或反填完成后先暂停，等待我确认后再进入下一阶段。
 
 如果是已有项目（有代码或文档），按 §3B 从项目现有信息中提取内容反填模板。
 
@@ -100,7 +103,8 @@ your-project/
 - `CLAUDE.md` / `AGENTS.md` 只放全局约束和索引，不内联复杂规格。
 - 具体产品、页面、接口、数据、架构和验收标准写入 `docs/specs/`。
 - `AI-BOOTSTRAP.md` 用于判断"现在该做什么"，不是替代 `prompt.md`。
-- `prompt.md` 用于驱动阶段产出，不保存项目事实。
+- `.template/prompt.md` 用于驱动阶段产出，不保存项目事实。
+- `docs/prompt.md` 是目标项目运行态 prompt，必须根据目标项目自身 prompt 和当前阶段生成；它不能替代长期规格。
 - `.template/reference/` 只在需要理解方法论时阅读，默认不进入 AI 工作上下文。
 - E2E 验收报告统一写入 `docs/e2e/verify/`。
 - `docs/decision.md` 用于记录产品、技术、实现和验证中的重要取舍。
@@ -132,6 +136,7 @@ your-project/
 - 不要让 AI 直接从 idea 跳到实现。
 - 不要用 mock / 静态数据作为最终 E2E 通过依据。
 - 不要把项目专属的大段业务规则写回模板入口文件。
+- 不要把目标项目事实写入 `.template/prompt.md`；项目化 prompt 写入 `docs/prompt.md`。
 - 模板复制到项目后，应把 `[变量]` 替换成真实项目内容。
 - 已有项目可以让 AI 从代码和配置中提取信息反填模板，不必全部手动填写。
 - 增量迭代先写 Delta Spec；如果变化影响长期事实（页面、接口、数据模型、验收标准、技术约束），必须同步回写对应全量 spec。

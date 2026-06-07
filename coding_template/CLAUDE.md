@@ -159,6 +159,8 @@ Mock / Contract 参考：[mock 文件路径]
 
 `.template/specs/` 只保存模板原件，不写项目事实；`docs/specs/` 保存项目实际规格，是实现、验证和交付时读取的主要上下文。默认建议 `.template/` 随项目入库；如果团队选择不入库，必须在 `docs/decision.md` 记录模板源路径和重新安装方式。
 
+`.template/prompt.md` 是阶段 prompt 模板原件，不写项目事实；`docs/prompt.md` 是目标项目运行态 prompt，必须根据目标项目自身已有 prompt、`CLAUDE.md` / `AGENTS.md`、`docs/progress.md` 和当前阶段相关规格生成或更新。阶段切换后必须更新 `docs/prompt.md` 的当前推荐 prompt。
+
 `docs/decision.md` 记录长期决策；`docs/progress.md` 记录当前阶段、任务状态、验证结果和下一步。阶段切换、长任务中断、E2E 验收和交付前后必须更新 `docs/progress.md`。
 
 AI 首次接手项目时，优先阅读：`.template/AI-BOOTSTRAP.md`，用于判断项目阶段、检查文档缺口并向人类推荐下一步 prompt。
@@ -187,6 +189,7 @@ AI 首次接手项目时，优先阅读：`.template/AI-BOOTSTRAP.md`，用于�
 
 - 入口文件只保留全局约束和文档索引。
 - 具体页面、接口、数据、架构、前后端规范按需写入 `docs/specs/` 下对应 spec 文件。
+- 具体可执行的下一步 prompt 写入 `docs/prompt.md`；长期事实不得只写在 `docs/prompt.md`，必须同步回写对应 spec、decision 或 progress。
 - 如果某个规格填充后超过 20 行，保留在独立 spec 文件中，不要内联回本文件。
 - 实现前**必须**读取当前任务直接相关的 spec 文件。
 - 每个 spec 必须维护规格状态：`Draft / AI Extracted / Human Confirmed / Frozen / Deprecated`。AI 从代码或文档反填的内容只能标记为 `AI Extracted`，不能冒充人类确认。

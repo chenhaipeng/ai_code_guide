@@ -30,6 +30,7 @@ check_dir "templates"
 check_dir "scripts"
 check_file "templates/decision.md"
 check_file "templates/progress.md"
+check_file "templates/runtime-prompt.md"
 
 require_text() {
   local path="$1"
@@ -69,6 +70,8 @@ if command -v grep >/dev/null 2>&1; then
   done
 
   require_text "AI-BOOTSTRAP.md" "docs/progress.md"
+  require_text "AI-BOOTSTRAP.md" "docs/prompt.md"
+  require_text "AI-BOOTSTRAP.md" "Prompt 执行台账"
   require_text "AI-BOOTSTRAP.md" ".template/templates/"
   require_text "AI-BOOTSTRAP.md" ".template/scripts/"
   require_text "AI-BOOTSTRAP.md" "validate-template.sh"
@@ -77,10 +80,15 @@ if command -v grep >/dev/null 2>&1; then
   require_text "AI-BOOTSTRAP.md" "Human Confirmed"
   require_text "AI-BOOTSTRAP.md" "默认随项目入库"
   require_text "README.md" "docs/progress.md"
+  require_text "README.md" "docs/prompt.md"
   require_text "README.md" ".template/templates/"
   require_text "README.md" ".template/scripts/validate-template.sh"
   require_text "AGENTS.md" "docs/progress.md"
+  require_text "AGENTS.md" "docs/prompt.md"
   require_text "CLAUDE.md" "docs/progress.md"
+  require_text "CLAUDE.md" "docs/prompt.md"
+  require_text "templates/runtime-prompt.md" "Prompt 执行台账"
+  require_text "templates/runtime-prompt.md" "Not Started / In Progress / Done / Skipped / Needs Review / Blocked"
   require_text "prompt.md" "docs/progress.md"
   require_text "prompt.md" "交付门禁"
 fi
