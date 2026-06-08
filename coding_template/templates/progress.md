@@ -4,7 +4,7 @@
 
 ## 当前状态
 
-- 当前阶段：[Idea / Product Spec / UX / System Design / E2E Spec / Implementation Plan / Development / Alignment / Acceptance / Delivery / Iteration]
+- 当前阶段：[Idea / Product Spec / Domain Research / Data Discovery / UX / System Design / E2E Spec / Implementation Plan / Development / Alignment / Acceptance / Delivery / Iteration]
 - 当前任务：[说明]
 - 当前分支：[分支名]
 - 最近更新时间：[YYYY-MM-DD HH:mm]

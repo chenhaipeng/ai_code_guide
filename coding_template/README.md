@@ -1,6 +1,6 @@
 # Coding Template
 
-> 面向 AI 协作开发的产品工程模板。用于从 idea 到规格、架构、实施计划、真实 E2E 验收和交付报告，逐步沉淀可执行上下文。
+> 面向 AI 协作开发的产品工程模板。用于从 idea 到调研、规格、架构、实施计划、真实 E2E 验收和交付报告，逐步沉淀可执行上下文。
 
 ## 适用场景
 
@@ -9,7 +9,7 @@
 本模板适合：
 
 - 从零梳理产品想法、MVP 范围和用户路径。
-- 让 AI 按阶段生成产品规格、架构设计、API / 页面映射和实施计划。
+- 让 AI 按阶段生成产品规格、Domain Research / Data Discovery、架构设计、API / 页面映射和实施计划。
 - 约束 AI 不要跳过验证、不要用 mock 数据冒充真实验收。
 - 将 E2E 验收、缺陷记录和交付报告沉淀为项目文档。
 
@@ -49,6 +49,14 @@ your-project/
 ├── docs/
 │   ├── prompt.md           ← 目标项目运行态 prompt（根据项目自身 prompt 和当前阶段生成）
 │   ├── specs/              ← 项目实际规格（从模板补全后存入）
+│   ├── research/           ← 领域调研、竞品、数据来源、数据链路、证据和假设
+│   │   ├── 05-domain-research.md
+│   │   ├── competitors/
+│   │   ├── data-sources/
+│   │   ├── data-lineage/
+│   │   ├── user-flows/
+│   │   ├── evidence/
+│   │   └── assumptions.md
 │   ├── e2e/verify/         ← 真实 E2E 验收报告
 │   ├── decision.md         ← 决策记录，记录技术、产品和实现取舍
 │   └── progress.md         ← 当前阶段、任务进度、验证状态和下一步
@@ -59,6 +67,7 @@ your-project/
 - `.template/` 保存模板原件，不写项目事实。AI 读取 `.template/AI-BOOTSTRAP.md` 启动诊断。默认建议随项目入库，确保新环境 clone 后仍能使用模板。
 - `docs/prompt.md` 保存目标项目运行态 prompt，由 AI 根据目标项目已有 prompt、项目约束、进度和当前阶段生成；已有则补充更新，不覆盖项目原有约定。
 - `docs/specs/` 保存目标项目实际补全后的规格，是开发和验收时读取的主要上下文。
+- `docs/research/` 保存目标项目的领域调研、竞品、数据来源、数据链路、用户闭环、证据和待确认假设；主产物为 `docs/research/05-domain-research.md`。
 - `docs/progress.md` 保存跨 session 的当前状态，长任务中断、阶段切换和交付前后必须更新。
 - `CLAUDE.md` / `AGENTS.md` 放在项目根目录，供 AI 工具自动发现。
 
@@ -67,7 +76,7 @@ your-project/
 1. 在 AI 工具中发送启动 Prompt（见下方），AI 会将 `coding_template/` 复制到目标项目的 `.template/` 目录。
 2. AI 检查 `.gitignore` 不应忽略 `.template/`；如果团队明确要求模板原件不入库，必须在 `docs/decision.md` 记录模板源路径和重新安装方式。
 3. AI 检查根目录 `CLAUDE.md` / `AGENTS.md`：不存在则根据项目代码创建，已存在则补充缺失章节。
-4. AI 从 `.template/templates/` 创建 `docs/decision.md`、`docs/progress.md` 和 `docs/prompt.md`；`docs/prompt.md` 必须融合目标项目自身已有 prompt。
+4. AI 从 `.template/templates/` 创建 `docs/decision.md`、`docs/progress.md` 和 `docs/prompt.md`，并创建 `docs/research/`；`docs/prompt.md` 必须融合目标项目自身已有 prompt。
 5. AI 运行 `.template/scripts/validate-template.sh .template` 检查模板体系。
 6. AI 根据 `AI-BOOTSTRAP.md` 输出项目阶段、文档缺口、验证条件，并把 `.template/prompt.md` 中对应阶段改写进 `docs/prompt.md`。
 7. 你确认后，按 `docs/prompt.md` 中的当前推荐 prompt 生成或补齐规格。
@@ -85,8 +94,8 @@ your-project/
 - 如果不存在，从 `.template/` 复制到根目录，并根据项目代码替换 [变量]。
 - 如果已存在，不要覆盖，只补充缺失章节。
 
-然后从 `.template/templates/` 创建 docs/decision.md、docs/progress.md 和 docs/prompt.md（已存在则不要覆盖，只补充缺失结构）。
-docs/prompt.md 必须根据目标项目自身已有 prompt、CLAUDE.md / AGENTS.md、docs/progress.md 和当前阶段相关规格生成。
+然后从 `.template/templates/` 创建 docs/decision.md、docs/progress.md 和 docs/prompt.md（已存在则不要覆盖，只补充缺失结构），并创建 docs/research/。
+docs/prompt.md 必须根据目标项目自身已有 prompt、CLAUDE.md / AGENTS.md、docs/progress.md、docs/research/ 和当前阶段相关规格生成。
 
 按 AI-BOOTSTRAP.md 要求判断当前项目阶段，检查必要文档和验证条件，列出缺口，
 并推荐下一步应该使用 `.template/prompt.md` 中的哪个阶段 prompt，同时写入或更新 docs/prompt.md 的当前推荐 prompt。安装或反填完成后先暂停，等待我确认后再进入下一阶段。
@@ -102,6 +111,7 @@ docs/prompt.md 必须根据目标项目自身已有 prompt、CLAUDE.md / AGENTS.
 
 - `CLAUDE.md` / `AGENTS.md` 只放全局约束和索引，不内联复杂规格。
 - 具体产品、页面、接口、数据、架构和验收标准写入 `docs/specs/`。
+- 领域调研、竞品、数据来源、数据链路、用户闭环、证据和待确认假设写入 `docs/research/`；确认后的长期事实再回写到对应 spec。
 - `AI-BOOTSTRAP.md` 用于判断"现在该做什么"，不是替代 `prompt.md`。
 - `.template/prompt.md` 用于驱动阶段产出，不保存项目事实。
 - `docs/prompt.md` 是目标项目运行态 prompt，必须根据目标项目自身 prompt 和当前阶段生成；它不能替代长期规格。
@@ -120,6 +130,10 @@ docs/prompt.md 必须根据目标项目自身已有 prompt、CLAUDE.md / AGENTS.
 3. `02-e2e-acceptance.md`
 4. `03-delivery-report.md`
 
+研究 / 数据发现：
+
+- `05-domain-research.md` -> `docs/research/05-domain-research.md`
+
 按需使用：
 
 - `10-ux-prototype.md`
@@ -129,11 +143,12 @@ docs/prompt.md 必须根据目标项目自身已有 prompt、CLAUDE.md / AGENTS.
 - `50-implementation-constraints.md`
 - `90-implementation-plan.md`
 
-是否"按需"由项目复杂度决定，不由 AI 为了加快实现自行跳过。凡涉及数据库、外部服务、权限、支付、额度、异步任务、复杂前后端接口或多角色流程，进入实施计划前必须至少补齐 `20/30/40/50` 中对应的设计规格。
+是否"按需"由项目复杂度决定，不由 AI 为了加快实现自行跳过。凡涉及数据库、外部服务、权限、支付、额度、异步任务、复杂前后端接口、多角色流程或生产数据链路，进入 UX / Architecture 前必须先完成或明确跳过 `05-domain-research.md`，进入实施计划前必须至少补齐 `20/30/40/50` 中对应的设计规格。
 
 ## 注意事项
 
 - 不要让 AI 直接从 idea 跳到实现。
+- 不要让 AI 在没有 `docs/research/05-domain-research.md` 或明确跳过理由的情况下直接进入 Architecture / System Design。
 - 不要用 mock / 静态数据作为最终 E2E 通过依据。
 - 不要把项目专属的大段业务规则写回模板入口文件。
 - 不要把目标项目事实写入 `.template/prompt.md`；项目化 prompt 写入 `docs/prompt.md`。

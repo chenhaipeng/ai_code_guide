@@ -46,6 +46,7 @@ for spec in \
   "01-product-spec.md" \
   "02-e2e-acceptance.md" \
   "03-delivery-report.md" \
+  "05-domain-research.md" \
   "10-ux-prototype.md" \
   "20-architecture.md" \
   "30-data-design.md" \
@@ -71,6 +72,10 @@ if command -v grep >/dev/null 2>&1; then
 
   require_text "AI-BOOTSTRAP.md" "docs/progress.md"
   require_text "AI-BOOTSTRAP.md" "docs/prompt.md"
+  require_text "AI-BOOTSTRAP.md" "docs/research/"
+  require_text "AI-BOOTSTRAP.md" "docs/research/05-domain-research.md"
+  require_text "AI-BOOTSTRAP.md" "Domain Research / Data Discovery"
+  require_text "AI-BOOTSTRAP.md" ".template/specs/05-domain-research.md"
   require_text "AI-BOOTSTRAP.md" "Prompt 执行台账"
   require_text "AI-BOOTSTRAP.md" ".template/templates/"
   require_text "AI-BOOTSTRAP.md" ".template/scripts/"
@@ -81,15 +86,25 @@ if command -v grep >/dev/null 2>&1; then
   require_text "AI-BOOTSTRAP.md" "默认随项目入库"
   require_text "README.md" "docs/progress.md"
   require_text "README.md" "docs/prompt.md"
+  require_text "README.md" "docs/research/"
+  require_text "README.md" "docs/research/05-domain-research.md"
   require_text "README.md" ".template/templates/"
   require_text "README.md" ".template/scripts/validate-template.sh"
   require_text "AGENTS.md" "docs/progress.md"
   require_text "AGENTS.md" "docs/prompt.md"
+  require_text "AGENTS.md" "## 4. 开发流程（强制 Superpowers 工作流）"
+  require_text "CLAUDE.md" "## 4. 开发流程（强制 Superpowers 工作流）"
   require_text "CLAUDE.md" "docs/progress.md"
   require_text "CLAUDE.md" "docs/prompt.md"
   require_text "templates/runtime-prompt.md" "Prompt 执行台账"
+  require_text "templates/runtime-prompt.md" "Domain Research / Data Discovery"
+  require_text "templates/runtime-prompt.md" "docs/research/05-domain-research.md"
   require_text "templates/runtime-prompt.md" "Not Started / In Progress / Done / Skipped / Needs Review / Blocked"
   require_text "prompt.md" "docs/progress.md"
+  require_text "prompt.md" "Domain Research / Data Discovery"
+  require_text "prompt.md" "docs/research/05-domain-research.md"
+  require_text "prompt.md" "Domain Research / Data Discovery：[路径]"
+  require_text "prompt.md" "docs/research/：[路径或无]"
   require_text "prompt.md" "交付门禁"
 fi
 

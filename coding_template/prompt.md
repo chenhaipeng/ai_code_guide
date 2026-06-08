@@ -50,40 +50,67 @@ Idea Brief：[路径]
 
 ---
 
-## 阶段 3：UX / Prototype（按需）
+## 阶段 3：Domain Research / Data Discovery
+
+```text
+Idea Brief：[路径]
+Product Spec：[路径]
+已有研究 / 数据来源 / 竞品材料：[路径或无]
+
+请按 `.template/specs/05-domain-research.md` 生成 Domain Research / Data Discovery，并将目标项目产物写入 `docs/research/05-domain-research.md`。
+
+要求：
+1. 建立 `docs/research/` 分类目录：competitors、data-sources、data-lineage、user-flows、evidence，并维护 `assumptions.md`
+2. 分析 3-5 个同类产品或竞品；不适用时必须说明原因
+3. 定义领域术语、用户使用闭环、数据来源清单、数据源到系统模型映射、数据流闭环
+4. 每个核心数据来源必须说明：来源、获取方式、授权、可信度、更新频率、失败模式和证据
+5. 每个关键结论必须有稳定 ID：COMP / TERM / SRC / MAP / FLOW / LOOP / RISK / ASM，供后续 specs 引用
+6. 明确哪些长期事实需要回写到 Product Spec、Data Design、API 或 E2E；研究证据保留在 `docs/research/`
+7. 写入规格状态；外部调研或 AI 推断内容不能标记为 `Human Confirmed`
+
+验证：如果核心字段无法追溯到数据来源或待确认假设、没有用户闭环、没有数据流闭环、P0 数据风险未关闭，则不进入 UX / Prototype 或 Architecture / System Design。
+```
+
+---
+
+## 阶段 4：UX / Prototype（按需）
 
 ```text
 如果产品涉及 C 端体验、复杂页面、视觉设计或原型，请执行本阶段；否则跳过。
 
 Product Spec：[路径]
+Domain Research / Data Discovery：[路径]
 
 请按 `.template/specs/10-ux-prototype.md` 生成 UX / Prototype Spec，并创建可交互原型。
 
 要求：
 1. 定义视觉方向、页面结构、关键组件和响应式规则
 2. 原型必须可直接打开或运行
-3. 原型可包含示例数据，但必须标注不能作为生产验收数据
-4. 明确原型复用边界：可复用结构/交互/文案，不复用假数据
-5. 写入规格状态，冻结原型后标记为 `Frozen`
+3. 原型中的示例数据、页面结构和用户闭环必须来自 Product Spec 和 Domain Research，不得随意编造
+4. 原型可包含示例数据，但必须标注不能作为生产验收数据
+5. 明确原型复用边界：可复用结构/交互/文案，不复用假数据
+6. 写入规格状态，冻结原型后标记为 `Frozen`
 
 验证：用浏览器打开原型，逐页检查导航、表单、按钮、空状态、错误状态和响应式表现。
 ```
 
 ---
 
-## 阶段 4：Architecture / System Design
+## 阶段 5：Architecture / System Design
 
 ```text
 Idea Brief：[路径]
 Product Spec：[路径]
+Domain Research / Data Discovery：`docs/research/05-domain-research.md`
+UX / Prototype：[路径或无]
 AGENTS.md / CLAUDE.md：[路径]
 
-请先做设计前诊断问题清单，再生成系统设计。
+请先读取 Domain Research / Data Discovery 的研究结论和待确认假设，再生成系统设计。
 
-诊断问题必须覆盖：
-- 数据从哪里来，是否可信，如何更新
-- 数据如何保存、读取、缓存和回写
-- 用户从进入到完成核心目标的闭环是什么
+设计输入校验必须覆盖：
+- `SRC` / `MAP` / `FLOW` 是否已覆盖核心数据来源、模型映射和数据流闭环
+- `LOOP` 是否已覆盖用户从进入到完成核心目标的闭环
+- `RISK` / `ASM` 中是否仍有阻塞架构的 P0 风险或待确认假设
 - 哪些结果需要可解释、可追溯或可审计
 - 是否涉及权限、余额、支付、额度、审批或其他关键风险
 - 实时性、失败恢复、降级策略如何处理
@@ -103,10 +130,11 @@ AGENTS.md / CLAUDE.md：[路径]
 
 ---
 
-## 阶段 5：E2E Acceptance Spec
+## 阶段 6：E2E Acceptance Spec
 
 ```text
 Product Spec：[路径]
+Domain Research / Data Discovery：`docs/research/05-domain-research.md`
 Architecture / API / Data Specs：[路径]
 
 请按 `.template/specs/02-e2e-acceptance.md` 生成开发前 E2E 验收规范。
@@ -124,14 +152,14 @@ Architecture / API / Data Specs：[路径]
 
 ---
 
-## 阶段 6：Implementation Plan
+## 阶段 7：Implementation Plan
 
 ```text
 已完成文档：
 - Idea Brief：[路径]
 - Product Spec：[路径]
 - E2E Acceptance：[路径]
-- 相关 Architecture / Data / API / UX specs：[路径]
+- 相关 Domain Research / Architecture / Data / API / UX specs：[路径]
 
 请按 `.template/specs/90-implementation-plan.md` 生成实施计划。
 
@@ -147,7 +175,7 @@ Architecture / API / Data Specs：[路径]
 
 ---
 
-## 阶段 7：分阶段开发
+## 阶段 8：分阶段开发
 
 ```text
 请实现 [Phase 编号]: [Phase 名称]。
@@ -156,9 +184,10 @@ Architecture / API / Data Specs：[路径]
 - AGENTS.md / CLAUDE.md：[路径]
 - Implementation Plan：[路径]
 - 当前 Phase 相关 specs：[路径]
+- docs/research/：[路径或无]
 
 执行要求：
-1. 只读取当前 Phase 直接相关文档，禁止一次性加载所有 spec
+1. 只读取当前 Phase 直接相关文档和研究结论，禁止一次性加载所有 spec / research
 2. 按计划逐步实现，不做计划外功能
 3. 每完成一个关键改动就运行对应验证
 4. 遇到决策默认选择推荐方案，并记录选项、选择和理由
@@ -169,7 +198,7 @@ Architecture / API / Data Specs：[路径]
 
 ---
 
-## 阶段 8：前端原型对齐（按需）
+## 阶段 9：前端原型对齐（按需）
 
 ```text
 如果产品有原型或 C 端 UI，请执行本阶段；否则跳过。
@@ -194,7 +223,7 @@ Architecture / API / Data Specs：[路径]
 
 ---
 
-## 阶段 9：全量 E2E 验收
+## 阶段 10：全量 E2E 验收
 
 ```text
 请按 `.template/specs/02-e2e-acceptance.md` 和项目实际 E2E 规范执行全量验收。
@@ -218,7 +247,7 @@ Architecture / API / Data Specs：[路径]
 
 ---
 
-## 阶段 10：Delivery Report
+## 阶段 11：Delivery Report
 
 ```text
 请按 `.template/specs/03-delivery-report.md` 生成交付报告。
@@ -296,7 +325,7 @@ Architecture / API / Data Specs：[路径]
 
 要求：
 1. 严格遵守 CLAUDE.md / AGENTS.md 中的所有约束，不得绕过验证流程。
-2. 按 docs/specs/ 已有的规格实现，规格不足的部分结合知名同类产品的最佳实践补齐。
+2. 按 docs/specs/ 已有规格和 docs/research/ 已确认研究结论实现；规格不足的部分先记录假设和决策，不能用未验证的竞品想象替代事实。
 3. 遇到决策时，默认按推荐方案或最优实践执行，但必须记录到 docs/decision.md：
    - 决策问题、备选方案、选择、理由、影响范围、相关文件。
 4. 每完成一个 Phase 或关键改动，立即验证（构建 + 测试 + E2E），不攒积压。
@@ -306,7 +335,7 @@ Architecture / API / Data Specs：[路径]
 上下文读取顺序：
 1. CLAUDE.md 或 AGENTS.md
 2. docs/progress.md（判断当前进度和中断点）
-3. 当前 Phase 相关的 docs/specs/ 文件
+3. 当前 Phase 相关的 docs/specs/ 文件和 docs/research/ 研究结论
 4. 如有原型，对照原型实现前端
 
 完成后输出：修改内容、验证结果、决策记录、未验证项、偏离规格情况。
