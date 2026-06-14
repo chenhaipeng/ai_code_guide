@@ -84,7 +84,8 @@ your-project/
 │   │   └── assumptions.md
 │   ├── e2e/verify/         ← 真实 E2E 验收报告
 │   ├── decision.md         ← 决策记录，记录技术、产品和实现取舍
-│   └── progress.md         ← 当前阶段、任务进度、验证状态和下一步
+│   ├── progress.md         ← 当前阶段、任务进度、验证状态和下一步
+│   └── workflow.yaml       ← 主流程状态机（spec 状态/依赖/触发），见 AI-BOOTSTRAP §0
 ```
 
 其中：

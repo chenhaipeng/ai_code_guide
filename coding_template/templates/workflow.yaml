@@ -1,0 +1,74 @@
+# Workflow State Machine — 主流程状态机
+#
+# 跟踪 prompt.md 主线上各 spec 的状态、依赖和触发。
+# AI 完成一个 spec(代码完成 + verify + 归档)后，必须按转移规则更新本文件。
+# 状态机转移不能只在 AI 上下文里——跨 session 会丢，必须写回这里。
+# 详见 .template/AI-BOOTSTRAP.md §0 方法论主线。
+
+current: ""   # 当前活跃 spec id；项目启动时为空，激活第一个 spec 后填入
+
+# spec 状态机: pending → drafting → coding → done → archived
+#   pending   : 未开始（等待依赖 archived）
+#   drafting  : 产出 spec 中（思考/设计，用 superpowers brainstorm）
+#   coding    : 用 superpowers 写代码中（write-plan → execute[TDD+review] → verify）
+#   done      : 代码完成 + verify 通过
+#   archived  : 已更新文档状态 + 归档到 archive/（使命完成）
+#
+# 转移规则（完成一个 spec 时强制执行）:
+#   1. done → 更新文档状态(spec 标记完成) + 归档到 archive/ → status = archived
+#   2. 扫描该 spec 的 triggers，把其中"所有 depends_on 都已 archived"的 pending spec → drafting
+#   3. current = 新激活的 spec
+#   4. 写回本文件
+#   人类 review 每次转移（当前 spec、激活的下一个是否正确）。
+
+# 默认主线（按 prompt.md 阶段序；项目可增删 spec 或调整依赖）:
+specs:
+  - id: 00-idea-brief
+    status: pending
+    depends_on: []
+    triggers: [01-product-spec]
+
+  - id: 01-product-spec
+    status: pending
+    depends_on: [00-idea-brief]
+    triggers: [05-domain-research]
+
+  - id: 05-domain-research
+    status: pending
+    depends_on: [01-product-spec]
+    triggers: [10-ux-prototype, 20-architecture]
+
+  - id: 10-ux-prototype        # 按需；纯后端/无 C 端 UI 可删
+    status: pending
+    depends_on: [05-domain-research]
+    triggers: [20-architecture]
+
+  - id: 20-architecture
+    status: pending
+    depends_on: [05-domain-research]
+    triggers: [30-data-design, 40-api-and-pages]
+
+  - id: 30-data-design
+    status: pending
+    depends_on: [20-architecture]
+    triggers: [50-implementation-constraints]
+
+  - id: 40-api-and-pages
+    status: pending
+    depends_on: [20-architecture]
+    triggers: [50-implementation-constraints]
+
+  - id: 50-implementation-constraints
+    status: pending
+    depends_on: [30-data-design, 40-api-and-pages]
+    triggers: [02-e2e-acceptance]
+
+  - id: 02-e2e-acceptance
+    status: pending
+    depends_on: [50-implementation-constraints]
+    triggers: [90-implementation-plan]
+
+  - id: 90-implementation-plan
+    status: pending
+    depends_on: [02-e2e-acceptance]
+    triggers: []   # 后续是代码实现，按 implementation-plan 内的 task 跟踪

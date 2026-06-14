@@ -22,6 +22,55 @@
 
 ---
 
+## 0. 方法论主线（AI 先读，贯穿全程）
+
+> 核心原则与主流程。AI 接手任何项目先按这节理解全局；§1-§11 是诊断和执行细节。
+
+### 主流程闭环
+
+AI 按 `.template/prompt.md` 主线推进，每个 spec 走完整闭环：
+
+```
+spec: drafting(产出,思考) → coding(superpowers: brainstorm→write-plan→execute[TDD+review]→verify) → done(代码完成) → 更新文档状态 → 归档 archive/ → 更新 workflow.yaml → 激活下一个 spec
+```
+
+### 三条铁律
+
+1. **信息只活在一处**：现状(接口/数据/行为)→代码；决策→`decision.md`；状态→`progress.md`。文档只指向，不重复记录。
+2. **spec 是想清楚的脚手架**：产出必要(逼思考)，用完归档，不长期维护；现状不抄进 spec。
+3. **验证 gate 驱动前进**：每步 verify 通过才进下一步；"应该可以"不算通过。
+
+### 产出归位（每次产出按此自检）
+
+| 产出是... | 归到 | 不归到 |
+| --- | --- | --- |
+| 接口字段/schema、表字段/索引、业务规则 | **代码**(OpenAPI / ORM / 测试) | spec |
+| 为什么选 A 不选 B | `decision.md` | spec |
+| 现在到哪 / 下一步 | `progress.md` | spec |
+| 产品边界 / 体验决策 | spec(设计快照) | — |
+
+### 主流程状态机（`docs/workflow.yaml`）
+
+跟踪主线各 spec 的状态/依赖/触发。**AI 完成一个 spec 必须更新本文件**——状态机转移不能只在上下文里(跨 session 会丢)，必须写回 `workflow.yaml`。
+
+**状态**：`pending` → `drafting` → `coding` → `done` → `archived`
+
+**转移规则**（完成一个 spec 时强制执行）：
+
+1. 代码完成 + verify 通过 → `done` → 更新文档状态 + 归档到 `archive/` → `archived`
+2. 扫描该 spec 的 `triggers`，把其中"所有 `depends_on` 都已 `archived`"的 `pending` spec → `drafting`
+3. `current` = 新激活的 spec；写回 `workflow.yaml`
+
+人类 review 每次转移（当前 spec、激活的下一个是否正确）。
+
+### 长期只维护
+
+`README` + `decision.md` + `progress.md`（+ `CLAUDE.md`/`AGENTS.md`）。其余(spec / research / plan / verify)是过程产物，用完归档。
+
+> 阶段诊断见 §5；执行某 spec 时用对应 superpowers 技能，产出按归位规则，状态转移按上面的状态机。
+
+---
+
 ## 1. 模板体系总览
 
 本模板不是单个 prompt，而是一套从想法到交付的分层上下文系统：
