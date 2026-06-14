@@ -25,11 +25,9 @@ check_file "AI-BOOTSTRAP.md"
 check_file "prompt.md"
 check_file "AGENTS.md"
 check_file "CLAUDE.md"
-check_dir "specs"
 check_dir "templates"
 check_dir "scripts"
 check_file "templates/decision.md"
-check_file "templates/progress.md"
 check_file "templates/runtime-prompt.md"
 check_file "templates/workflow.yaml"
 check_file "scripts/test-validate-template.sh"
@@ -249,40 +247,17 @@ check_workflow_structure() {
   fi
 }
 
-for spec in \
-  "00-idea-brief.md" \
-  "01-product-spec.md" \
-  "02-e2e-acceptance.md" \
-  "03-delivery-report.md" \
-  "05-domain-research.md" \
-  "10-ux-prototype.md" \
-  "20-architecture.md" \
-  "30-data-design.md" \
-  "40-api-and-pages.md" \
-  "50-implementation-constraints.md" \
-  "90-implementation-plan.md"; do
-  check_file "specs/$spec"
-done
-
 if command -v grep >/dev/null 2>&1; then
   if grep -R "将 .template/ 加入目标项目的 .gitignore" "$root" --exclude "validate-template.sh" >/dev/null 2>&1; then
     echo "INVALID old .template gitignore instruction found"
     failures=$((failures + 1))
   fi
 
-  for spec_path in "$root"/specs/*.md; do
-    [[ -f "$spec_path" ]] || continue
-    if ! grep -q "内容状态" "$spec_path"; then
-      echo "MISSING spec content status: ${spec_path#$root/}"
-      failures=$((failures + 1))
-    fi
-    if grep -q "## 规格状态" "$spec_path"; then
-      echo "INVALID old spec status heading: ${spec_path#$root/}"
-      failures=$((failures + 1))
-    fi
-  done
+  if [[ -d "$root/specs" ]]; then
+    echo "INVALID obsolete spec template dir: specs/"
+    failures=$((failures + 1))
+  fi
 
-  require_text "AI-BOOTSTRAP.md" "docs/progress.md"
   require_text "AI-BOOTSTRAP.md" "docs/prompt.md"
   require_text "AI-BOOTSTRAP.md" "docs/workflow.yaml"
   require_text "AI-BOOTSTRAP.md" 'docs/workflow.yaml.current` 为权威当前 item'
@@ -298,7 +273,6 @@ if command -v grep >/dev/null 2>&1; then
   require_text "AI-BOOTSTRAP.md" "docs/research/"
   require_text "AI-BOOTSTRAP.md" "docs/superpowers/specs/05-domain-research.md"
   require_text "AI-BOOTSTRAP.md" "Domain Research / Data Discovery"
-  require_text "AI-BOOTSTRAP.md" ".template/specs/05-domain-research.md"
   require_text "AI-BOOTSTRAP.md" "Prompt 执行台账"
   require_text "AI-BOOTSTRAP.md" ".template/templates/"
   require_text "AI-BOOTSTRAP.md" ".template/scripts/"
@@ -307,7 +281,6 @@ if command -v grep >/dev/null 2>&1; then
   require_text "AI-BOOTSTRAP.md" "AI Extracted"
   require_text "AI-BOOTSTRAP.md" "Human Confirmed"
   require_text "AI-BOOTSTRAP.md" "默认随项目入库"
-  require_text "README.md" "docs/progress.md"
   require_text "README.md" "docs/prompt.md"
   require_text "README.md" "docs/workflow.yaml"
   require_text "README.md" "docs/superpowers/specs/"
@@ -327,7 +300,6 @@ if command -v grep >/dev/null 2>&1; then
   require_text "README.md" ".template/templates/"
   require_text "README.md" ".template/scripts/validate-template.sh"
   require_text "README.md" ".template/scripts/test-validate-template.sh"
-  require_text "AGENTS.md" "docs/progress.md"
   require_text "AGENTS.md" "docs/prompt.md"
   require_text "AGENTS.md" "docs/workflow.yaml.current"
   require_text "AGENTS.md" "03-delivery-report"
@@ -338,7 +310,6 @@ if command -v grep >/dev/null 2>&1; then
   require_text "AGENTS.md" "docs/superpowers/plans/archive/"
   require_text "AGENTS.md" "## 4. 开发流程（强制 Superpowers 工作流）"
   require_text "CLAUDE.md" "## 4. 开发流程（强制 Superpowers 工作流）"
-  require_text "CLAUDE.md" "docs/progress.md"
   require_text "CLAUDE.md" "docs/prompt.md"
   require_text "CLAUDE.md" "docs/workflow.yaml.current"
   require_text "CLAUDE.md" "03-delivery-report"
@@ -347,8 +318,6 @@ if command -v grep >/dev/null 2>&1; then
   require_text "CLAUDE.md" "一次性交付总结，不进入 workflow"
   require_text "CLAUDE.md" "两套状态不得混用"
   require_text "CLAUDE.md" "docs/superpowers/plans/archive/"
-  require_text "templates/progress.md" "docs/workflow.yaml.current"
-  require_text "templates/progress.md" "人类可读阶段"
   require_text "templates/runtime-prompt.md" "Prompt 执行台账"
   require_text "templates/runtime-prompt.md" "Prompt 状态枚举"
   require_text "templates/runtime-prompt.md" "Workflow 生命周期一律以"
@@ -373,7 +342,6 @@ if command -v grep >/dev/null 2>&1; then
   require_text "templates/workflow.yaml" "content_status:"
   require_text "templates/workflow.yaml" "skipped"
   require_text "templates/workflow.yaml" "depends_on: [05-domain-research, 10-ux-prototype]"
-  require_text "prompt.md" "docs/progress.md"
   require_text "prompt.md" "## 通用状态转移规则"
   require_text "prompt.md" '执行 spec / plan 阶段 prompt（阶段 1-7）前，先读取 `docs/workflow.yaml.current`'
   require_text "prompt.md" "阶段 8-11 属于执行层"
@@ -391,12 +359,35 @@ if command -v grep >/dev/null 2>&1; then
   require_text "reference/documentation-governance.md" "不进入 workflow"
   require_text "reference/documentation-governance.md" "内容状态"
 
+  if [[ -f "$root/templates/progress.md" ]]; then
+    echo "INVALID obsolete template file: templates/progress.md"
+    failures=$((failures + 1))
+  fi
+  if grep -R "docs/progress.md" \
+    "$root/README.md" \
+    "$root/AI-BOOTSTRAP.md" \
+    "$root/CLAUDE.md" \
+    "$root/AGENTS.md" \
+    "$root/prompt.md" \
+    "$root/templates" \
+    "$root/reference/documentation-governance.md" >/dev/null 2>&1; then
+    echo "INVALID obsolete progress.md reference found"
+    failures=$((failures + 1))
+  fi
+
   if grep -R "当前阶段相关规格" "$root/README.md" "$root/AI-BOOTSTRAP.md" >/dev/null 2>&1; then
     echo "INVALID old current-stage prompt wording found"
     failures=$((failures + 1))
   fi
-  if grep -R "## 规格状态" "$root/specs" >/dev/null 2>&1; then
-    echo "INVALID old spec status heading found"
+  if grep -R "\.template/specs" \
+    "$root/README.md" \
+    "$root/AI-BOOTSTRAP.md" \
+    "$root/CLAUDE.md" \
+    "$root/AGENTS.md" \
+    "$root/prompt.md" \
+    "$root/templates" \
+    "$root/reference/documentation-governance.md" >/dev/null 2>&1; then
+    echo "INVALID obsolete .template/specs reference found"
     failures=$((failures + 1))
   fi
 

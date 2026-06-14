@@ -1,13 +1,13 @@
 # AI 产品工程 Prompt 模板
 
-> 目的：驱动 AI 从 idea 到交付产品。具体内容写入 `.template/specs/` 对应模板，避免把所有细节塞进 prompt。
+> 目的：驱动 AI 从 idea 到交付产品。Superpowers 负责执行方法，本文档定义主线阶段、输入、输出、门禁和归档规则。
 >
 > 原则：
 > - 只读取当前 workflow item / 执行层相关文档；做完立刻验证；不验证不进入下一步。
 > - **产出归位**：每阶段产出的信息归到它的天然源头，而不是堆进 spec——
 >   - 现状（接口 / 数据 / 行为）→ 写进代码（OpenAPI / ORM / 测试），spec 不手写这些
 >   - 决策（为什么这么选）→ 追加到 `docs/decision.md`
->   - 状态（到哪了）→ 更新 `docs/progress.md`
+>   - 状态（到哪了）→ spec / plan 生命周期写入 `docs/workflow.yaml`，prompt 执行状态写入 `docs/prompt.md` 执行台账，实现任务写入 active implementation plan
 >   - spec / plan 本体 → 思考脚手架，完成并确认后先改内容状态为 `Archived`，再移动到各自 archive（见 `reference/documentation-governance.md`）
 
 ---
@@ -16,9 +16,9 @@
 
 执行 spec / plan 阶段 prompt（阶段 1-7）前，先读取 `docs/workflow.yaml.current`，确认当前 item、`artifact_path`、`archive_path` 和依赖状态。开始产出时确保对应 item 为 `drafting`；产出并自检后改为 `review`，请求人类确认；人类确认后改为 `ready`，文件内容状态可标记为 `Human Confirmed`；被后续阶段或实现使用后改为 `consumed`；对应验证通过后改为 `verified`；归档前先把文件内容状态改为 `Archived`，再移动到 `archive_path`，并把 workflow 状态改为 `archived`。
 
-阶段 8-11 属于执行层，不创建默认 workflow item；按 `90-implementation-plan` 内 task、`docs/progress.md`、`docs/e2e/verify/` 和 `docs/superpowers/specs/03-delivery-report.md` 跟踪。`03-delivery-report` 是一次性交付总结，不进入 workflow，完成并确认后按 spec 归档到 `docs/superpowers/specs/archive/`。
+阶段 8-11 属于执行层，不创建默认 workflow item；按 `90-implementation-plan` 内 task、`docs/prompt.md` 执行台账、`docs/e2e/verify/` 和 `docs/superpowers/specs/03-delivery-report.md` 跟踪。`03-delivery-report` 是一次性交付总结，不进入 workflow，完成并确认后按 spec 归档到 `docs/superpowers/specs/archive/`。
 
-如果阶段 prompt 的诊断和 `docs/workflow.yaml.current` 不一致，不能自行选择另一阶段执行；必须报告差异，等待人类确认后再更新 `docs/workflow.yaml`、`docs/progress.md` 和 `docs/prompt.md`。
+如果阶段 prompt 的诊断和 `docs/workflow.yaml.current` 不一致，不能自行选择另一阶段执行；必须报告差异，等待人类确认后再更新 `docs/workflow.yaml` 和 `docs/prompt.md`。
 
 ---
 
@@ -32,7 +32,7 @@
 解决问题：[痛点]
 带来结果：[用户获得什么]
 
-请按 `.template/specs/00-idea-brief.md` 生成 Idea Brief。
+请使用 Superpowers 的构思 / 规格工作流生成 Idea Brief，并写入 `docs/superpowers/specs/00-idea-brief.md`。
 
 要求：
 1. 压缩成一句话产品定义
@@ -52,7 +52,7 @@
 ```text
 Idea Brief：[路径]
 
-请按 `.template/specs/01-product-spec.md` 生成 Product Spec。
+请使用 Superpowers 的规格工作流生成 Product Spec，并写入 `docs/superpowers/specs/01-product-spec.md`。
 
 要求：
 1. 定义用户角色和核心用户路径
@@ -73,7 +73,7 @@ Idea Brief：[路径]
 Product Spec：[路径]
 已有研究 / 数据来源 / 竞品材料：[路径或无]
 
-请按 `.template/specs/05-domain-research.md` 生成 Domain Research / Data Discovery，并将目标项目产物写入 `docs/superpowers/specs/05-domain-research.md`。
+请使用 Superpowers 的研究 / 规格工作流生成 Domain Research / Data Discovery，并将目标项目产物写入 `docs/superpowers/specs/05-domain-research.md`。
 
 要求：
 1. 建立 `docs/research/` 分类目录：competitors、data-sources、data-lineage、user-flows、evidence，并维护 `assumptions.md`
@@ -92,12 +92,12 @@ Product Spec：[路径]
 ## 阶段 4：UX / Prototype（按需）
 
 ```text
-如果产品涉及 C 端体验、复杂页面、视觉设计或原型，请执行本阶段；否则必须在 `docs/workflow.yaml` 将 `10-ux-prototype` 标记为 `skipped`，并在 `docs/prompt.md` 执行台账和 `docs/progress.md` 写明跳过原因。
+如果产品涉及 C 端体验、复杂页面、视觉设计或原型，请执行本阶段；否则必须在 `docs/workflow.yaml` 将 `10-ux-prototype` 标记为 `skipped`，并在 `docs/prompt.md` 执行台账写明跳过原因。
 
 Product Spec：[路径]
 Domain Research / Data Discovery：[路径]
 
-请按 `.template/specs/10-ux-prototype.md` 生成 UX / Prototype Spec，并创建可交互原型。
+请使用 Superpowers 的规格工作流生成 UX / Prototype Spec，并创建可交互原型。产物写入 `docs/superpowers/specs/10-ux-prototype.md`。
 
 要求：
 1. 定义视觉方向、页面结构、关键组件和响应式规则
@@ -132,11 +132,11 @@ AGENTS.md / CLAUDE.md：[路径]
 - 实时性、失败恢复、降级策略如何处理
 - 哪些能力第一版明确不做
 
-然后按需生成：
-- 架构：`.template/specs/20-architecture.md`
-- 数据设计：`.template/specs/30-data-design.md`
-- API 与页面接口：`.template/specs/40-api-and-pages.md`
-- 实现约束：`.template/specs/50-implementation-constraints.md`
+然后按需生成并写入：
+- 架构：`docs/superpowers/specs/20-architecture.md`
+- 数据设计：`docs/superpowers/specs/30-data-design.md`
+- API 与页面接口：`docs/superpowers/specs/40-api-and-pages.md`
+- 实现约束：`docs/superpowers/specs/50-implementation-constraints.md`
 
 凡涉及数据库、外部服务、权限、支付、额度、异步任务、复杂前后端接口、多角色流程或生产数据链路，不得跳过对应设计规格。
 生成的设计规格必须写入内容状态；从现有代码反填的内容标记为 `AI Extracted`。
@@ -153,7 +153,7 @@ Product Spec：[路径]
 Domain Research / Data Discovery：`docs/superpowers/specs/05-domain-research.md`
 Architecture / API / Data Specs：[路径]
 
-请按 `.template/specs/02-e2e-acceptance.md` 生成开发前 E2E 验收规范。
+请使用 Superpowers 的规格工作流生成开发前 E2E 验收规范，并写入 `docs/superpowers/specs/02-e2e-acceptance.md`。
 
 要求：
 1. 按核心用户路径拆分 E2E 用例
@@ -177,7 +177,7 @@ Architecture / API / Data Specs：[路径]
 - E2E Acceptance：[路径]
 - 相关 Domain Research / Architecture / Data / API / UX specs：[路径]
 
-请按 `.template/specs/90-implementation-plan.md` 生成实施计划，并写入 `docs/superpowers/plans/90-implementation-plan.md`。
+请使用 Superpowers 的 planning 工作流生成实施计划，并写入 `docs/superpowers/plans/90-implementation-plan.md`。
 
 要求：
 1. 每个 Phase 是独立可验证的交付单元
@@ -209,7 +209,7 @@ Architecture / API / Data Specs：[路径]
 4. 遇到决策默认选择推荐方案，并记录选项、选择和理由
 5. 如果验证失败，先修复，不继续下一个 Phase
 
-完成后更新 `docs/progress.md`，并输出：修改内容、验证结果、未验证项、偏离计划情况。
+完成后更新 active implementation plan task 和 `docs/prompt.md` 执行台账，并输出：修改内容、验证结果、未验证项、偏离计划情况。
 ```
 
 ---
@@ -234,7 +234,7 @@ Architecture / API / Data Specs：[路径]
 - 自动刷新或倒计时必须真实请求后端
 - 弹窗 / 抽屉关闭后状态恢复正确
 
-输出：必须修复项、可接受差异、截图证据。必须修复项为 0 才通过。完成后更新 `docs/progress.md`。
+输出：必须修复项、可接受差异、截图证据。必须修复项为 0 才通过。完成后更新 `docs/prompt.md` 执行台账；如形成验收证据，写入 `docs/e2e/verify/`。
 ```
 
 ---
@@ -242,7 +242,7 @@ Architecture / API / Data Specs：[路径]
 ## 阶段 10：全量 E2E 验收
 
 ```text
-请按 `.template/specs/02-e2e-acceptance.md` 和项目实际 E2E 规范执行全量验收。
+请按项目实际 E2E 规范执行全量验收。
 
 前端地址：[地址]
 后端地址：[地址]
@@ -258,7 +258,7 @@ Architecture / API / Data Specs：[路径]
 6. 数据链路专项报告写入 `docs/e2e/verify/<topic>-data-flow-verify.md`（如适用）
 
 最终结论只能是：通过 / 有条件通过 / 不通过。
-完成后更新 `docs/progress.md` 的最新验证、风险和下一步。
+完成后将验证报告写入 `docs/e2e/verify/`，并更新 `docs/prompt.md` 执行台账的验证结果、风险和下一步。
 ```
 
 ---
@@ -266,7 +266,7 @@ Architecture / API / Data Specs：[路径]
 ## 阶段 11：Delivery Report
 
 ```text
-请按 `.template/specs/03-delivery-report.md` 生成交付报告。
+请根据以下要求生成交付报告，并写入 `docs/superpowers/specs/03-delivery-report.md`。
 
 输入：
 - Implementation Plan：[路径]
@@ -276,7 +276,7 @@ Architecture / API / Data Specs：[路径]
 报告必须包含：交付范围、修改摘要、验证摘要、真实证据、风险与未验证项、交付门禁、最终结论。
 
 验证：没有真实证据、缺少未验证项说明、缺少交付门禁、或使用"应该可以"，均不算完成交付。
-完成后更新 `docs/progress.md`，并将相关长期事实回写到全量 spec。
+完成后更新 `docs/prompt.md` 执行台账，并将相关长期事实回写到全量 spec。
 ```
 
 ---
@@ -297,7 +297,7 @@ Architecture / API / Data Specs：[路径]
 4. Delta Spec（只描述本次变化，不重写全量文档）
 5. 小步实施计划和回归 E2E 范围
 6. 判断哪些变化必须回写全量 spec：页面/接口/数据/验收/技术约束等长期事实必须同步回写，临时验证结果只写 verify 或 delivery report
-7. 更新 `docs/progress.md` 的当前任务、风险和下一步
+7. 更新 `docs/prompt.md` 执行台账的当前任务、风险和下一步
 
 未经确认，不要开始写代码。
 ```
@@ -331,7 +331,7 @@ Architecture / API / Data Specs：[路径]
 问题：[内容]
 
 请读取相关文件后从中断点继续，不要重复已完成工作。
-优先读取 `docs/workflow.yaml.current` 判断当前 spec / plan item，读取 `docs/progress.md` 判断已完成、进行中、未完成、阻塞和下一步。
+优先读取 `docs/workflow.yaml.current` 判断当前 spec / plan item；读取 `docs/prompt.md` 执行台账、active implementation plan task 和 `docs/e2e/verify/` 判断已完成、进行中、未完成、阻塞和下一步。
 ```
 
 ### 全量实现（ultracode 模式）
@@ -345,13 +345,13 @@ Architecture / API / Data Specs：[路径]
 3. 遇到决策时，默认按推荐方案或最优实践执行，但必须记录到 docs/decision.md：
    - 决策问题、备选方案、选择、理由、影响范围、相关文件。
 4. 每完成一个 Phase 或关键改动，立即验证（构建 + 测试 + E2E），不攒积压。
-5. 验证结果写入 docs/e2e/verify/，进度更新到 docs/progress.md。
+5. 验证结果写入 docs/e2e/verify/，prompt 执行状态更新到 docs/prompt.md，任务状态更新到 active implementation plan。
 6. 实现前先读取当前 Phase 直接相关的 spec，不要一次性加载所有文档。
 
 上下文读取顺序：
 1. CLAUDE.md 或 AGENTS.md
-2. docs/progress.md（判断当前进度和中断点）
-3. 当前 Phase 相关的 docs/superpowers/specs/ 文件和 docs/research/ 研究结论
+2. docs/workflow.yaml 和 docs/prompt.md 执行台账（判断当前 item、执行层位置和中断点）
+3. 当前 Phase 相关的 docs/superpowers/plans/、docs/superpowers/specs/ 文件和 docs/research/ 研究结论
 4. 如有原型，对照原型实现前端
 
 完成后输出：修改内容、验证结果、决策记录、未验证项、偏离规格情况。
