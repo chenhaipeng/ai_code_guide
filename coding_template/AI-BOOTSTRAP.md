@@ -36,7 +36,7 @@ CLAUDE.md / AGENTS.md   ->  全局工程约束和 AI 行为边界（项目根目
   scripts/               ->  模板体系校验脚本
   reference/             ->  方法论参考，默认不进入 AI 工作上下文
 docs/prompt.md           ->  项目运行态 prompt，根据目标项目自身 prompt 和当前阶段生成
-docs/specs/              ->  项目实际规格，是实现和验证的主要上下文
+docs/specs/              ->  思考脚手架(过程产物)，用完归档；现状真相以代码为准
 docs/research/           ->  领域调研、数据发现、证据、假设和后续设计引用
 docs/e2e/verify/         ->  真实 E2E 验收报告
 docs/decision.md         ->  决策记录，记录重要产品、技术、实现和验证取舍
@@ -147,7 +147,7 @@ AI 进入项目后，先判断项目是否已有 `.template/` 目录，再选择
 **从已有信息反填模板：**
 
 - 技术栈、启动命令、数据库信息 → 反填 `CLAUDE.md` / `AGENTS.md` 的 §2-§3。
-- 已有 API 路由和数据模型 → 生成 `40-api-and-pages.md` 和 `30-data-design.md` 的初稿供人类确认。
+- 已有 API 路由和数据模型 → **代码即真相，不反填到手写 spec**；只在需要记录设计决策（鉴权、幂等、快照规则等）时才写 `30/40`，现状字段 / schema 不手写（详见 `reference/documentation-governance.md`）。
 - 已有页面和组件 → 补充 `01-product-spec.md` 的页面列表。
 - 已有 prompt 和当前阶段 → 生成或更新 `docs/prompt.md`，把 `.template/prompt.md` 的阶段模板改写为目标项目可直接执行的 prompt。
 - 已有的任何文档，**先引用再补齐**，不要用模板覆盖已有内容。
@@ -195,7 +195,7 @@ AI 进入项目后，先判断项目是否已有 `.template/` 目录，再选择
 7. `docs/specs/02-e2e-acceptance.md`（如不存在，读取 `.template/specs/02-e2e-acceptance.md` 了解模板结构）
 8. `docs/progress.md`（如不存在，读取 `.template/templates/progress.md` 了解模板结构）
 
-路径规则：`.template/specs/` 是模板原件目录，不写项目事实；`docs/specs/` 是项目实际规格目录，是实现、验证和交付时读取的主要上下文。优先读取 `docs/specs/`，仅在项目规格尚未生成时回退到 `.template/specs/`。
+路径规则：`.template/specs/` 是模板原件，不写项目事实；`docs/specs/` 是思考脚手架（过程产物），用完归档。**现状（接口 / 数据 / 行为）以代码为准**（OpenAPI / ORM / 测试），不要优先读 spec 查现状。
 
 如果项目没有 `docs/specs/`，检查是否有：
 
@@ -337,8 +337,7 @@ AI **可以**从项目现有信息中自动提取并填入以下内容：
 - 从 `package.json` / `pyproject.toml` / `build.gradle` 等提取技术栈 → 填入 `CLAUDE.md` §2。
 - 从 `docker-compose.yml` / `.env.example` 提取中间件和端口 → 填入 `CLAUDE.md` §3。
 - 从 `Makefile` / `scripts/` / CI 配置提取构建和启动命令 → 填入 `CLAUDE.md` §3。
-- 从数据库模型文件提取表结构 → 生成 `30-data-design.md` 初稿。
-- 从路由定义提取 API 列表 → 生成 `40-api-and-pages.md` 初稿。
+- 从数据库模型文件和路由定义提取**设计决策**（不可变快照、账本规则、鉴权、幂等）→ 只在需要时写入 `30/40` 的"设计决策"节；**逐字段表 / 逐接口 schema 不反填**，真相在代码（ORM / OpenAPI）。
 - 从 `README.md` 提取产品描述 → 填入 `CLAUDE.md` §1 和 `00-idea-brief.md`。
 - 从目标项目已有 prompt 和当前阶段 → 生成或更新 `docs/prompt.md`。
 
