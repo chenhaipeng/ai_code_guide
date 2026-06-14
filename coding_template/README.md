@@ -25,7 +25,7 @@
 | `specs/` | 人类 / AI | 各阶段规格模板，按需复制和补全。 |
 | `templates/` | AI | 项目运行态文档模板，如决策记录、进度记录和运行态 prompt。 |
 | `scripts/` | AI / 人类 | 模板体系校验脚本。 |
-| `reference/` | 人类 | 方法论参考，不是 AI 每次必须读取的执行上下文。 |
+| `reference/` | 人类 | 方法论参考（含 `documentation-governance.md` 文档治理），不是 AI 每次必须读取的执行上下文。 |
 
 `CLAUDE.md` 和 `AGENTS.md` 内容默认保持一致，只是适配不同 AI 工具的自动发现入口。修改其中一个时，必须同步另一个；如果项目只使用其中一种工具，也应在另一个文件顶部说明它由谁同步或不再使用。
 
@@ -66,7 +66,7 @@ your-project/
 
 - `.template/` 保存模板原件，不写项目事实。AI 读取 `.template/AI-BOOTSTRAP.md` 启动诊断。默认建议随项目入库，确保新环境 clone 后仍能使用模板。
 - `docs/prompt.md` 保存目标项目运行态 prompt，由 AI 根据目标项目已有 prompt、项目约束、进度和当前阶段生成；已有则补充更新，不覆盖项目原有约定。
-- `docs/specs/` 保存目标项目实际补全后的规格，是开发和验收时读取的主要上下文。
+- `docs/specs/` 保存目标项目补全后的规格。**这些是脚手架（过程产物），用完归档或删除，不长期维护**（详见 `reference/documentation-governance.md`）；接口 / 数据真相以代码为准（OpenAPI / ORM），不手写。
 - `docs/research/` 保存目标项目的领域调研、竞品、数据来源、数据链路、用户闭环、证据和待确认假设；主产物为 `docs/research/05-domain-research.md`。
 - `docs/progress.md` 保存跨 session 的当前状态，长任务中断、阶段切换和交付前后必须更新。
 - `CLAUDE.md` / `AGENTS.md` 放在项目根目录，供 AI 工具自动发现。
@@ -110,7 +110,7 @@ docs/prompt.md 必须根据目标项目自身已有 prompt、CLAUDE.md / AGENTS.
 ## 使用原则
 
 - `CLAUDE.md` / `AGENTS.md` 只放全局约束和索引，不内联复杂规格。
-- 具体产品、页面、接口、数据、架构和验收标准写入 `docs/specs/`。
+- 具体产品、页面、架构和验收标准写入 `docs/specs/`（脚手架，用完归档）；**接口与数据真相以代码为准**（OpenAPI / ORM），不手写逐字段 / 逐接口 schema。
 - 领域调研、竞品、数据来源、数据链路、用户闭环、证据和待确认假设写入 `docs/research/`；确认后的长期事实再回写到对应 spec。
 - `AI-BOOTSTRAP.md` 用于判断"现在该做什么"，不是替代 `prompt.md`。
 - `.template/prompt.md` 用于驱动阶段产出，不保存项目事实。
