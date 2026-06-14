@@ -157,7 +157,7 @@ Mock / Contract 参考：[mock 文件路径]
 
 详细规格不写在本入口文件中。模板原件位于 `.template/specs/`，项目实际规格写入 `docs/specs/`，研究证据和数据发现写入 `docs/research/`。
 
-`.template/specs/` 只保存模板原件，不写项目事实；`docs/specs/` 保存项目实际规格，是实现、验证和交付时读取的主要上下文。`docs/research/` 保存领域调研、竞品、数据来源、数据链路、用户闭环、证据和待确认假设；主产物为 `docs/research/05-domain-research.md`。默认建议 `.template/` 随项目入库；如果团队选择不入库，必须在 `docs/decision.md` 记录模板源路径和重新安装方式。
+`.template/specs/` 只保存模板原件，不写项目事实；`docs/specs/` 保存项目实际规格（思考脚手架，用完归档）；现状（接口 / 数据）以代码为准。`docs/research/` 保存领域调研、竞品、数据来源、数据链路、用户闭环、证据和待确认假设；主产物为 `docs/research/05-domain-research.md`。默认建议 `.template/` 随项目入库；如果团队选择不入库，必须在 `docs/decision.md` 记录模板源路径和重新安装方式。
 
 `.template/prompt.md` 是阶段 prompt 模板原件，不写项目事实；`docs/prompt.md` 是目标项目运行态 prompt，必须根据目标项目自身已有 prompt、`CLAUDE.md` / `AGENTS.md`、`docs/progress.md` 和当前阶段相关规格生成或更新。阶段切换后必须更新 `docs/prompt.md` 的当前推荐 prompt。
 
@@ -199,3 +199,13 @@ AI 首次接手项目时，优先阅读：`.template/AI-BOOTSTRAP.md`，用于�
 - 实现前**必须**读取当前任务直接相关的 spec 文件。
 - 每个 spec 必须维护规格状态：`Draft / AI Extracted / Human Confirmed / Frozen / Deprecated`。AI 从代码或文档反填的内容只能标记为 `AI Extracted`，不能冒充人类确认。
 - 如果存在 `.template/scripts/validate-template.sh`，模板安装、模板修改或交付前应运行 `.template/scripts/validate-template.sh .template`。
+
+## 7. 文档治理
+
+> 详见 `.template/reference/documentation-governance.md`。核心:
+
+- **信息只活在一处**:现状(接口 / 数据 / 行为)→ **代码即真相**(OpenAPI / ORM+迁移 / 测试),不手写;决策(为什么)→ `docs/decision.md`(append-only 封存);状态(现在到哪)→ `docs/progress.md`(轻量维护);导航 / 约束 → `README` + 本文件(指向上面的源)。
+- **specs 是思考脚手架**:用完归档 / 删除,不长期维护;现状不抄进 spec。
+- **长期只维护** `README` + `docs/decision.md` + `docs/progress.md`(+ 本文件)。其余要么是代码,要么是用完即弃的脚手架。
+
+判定一份文档去留:删掉它谁会受影响?它描述会变的现状、还是不变的决策?谁在何时需要它?
