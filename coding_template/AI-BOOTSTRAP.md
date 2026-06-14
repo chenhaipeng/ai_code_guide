@@ -13,9 +13,9 @@
 3. 检查目标项目根目录是否已有 `CLAUDE.md` 或 `AGENTS.md`：
    - **不存在**：从 `.template/` 复制到根目录，然后根据目标项目的代码结构、配置文件和已有文档，替换模板中的 `[变量]`（至少补齐项目定位、技术方向和本地开发环境）。
    - **已存在**：**不要覆盖**。读取已有内容，根据目标项目实际情况补充缺失的章节（如缺少技术方向、开发环境、验证标准等），保留项目原有的约定和规则不变。
-4. 创建 `docs/specs/`、`docs/research/` 和 `docs/e2e/verify/` 目录。
-5. 从 `.template/templates/decision.md` 创建 `docs/decision.md`，从 `.template/templates/progress.md` 创建 `docs/progress.md`，从 `.template/templates/runtime-prompt.md` 创建或更新 `docs/prompt.md`；已存在则不要覆盖，只补充缺失结构。
-   - `docs/prompt.md` 必须根据目标项目自身已有 prompt、`CLAUDE.md` / `AGENTS.md`、`docs/progress.md`、`docs/research/` 和当前阶段相关规格生成。
+4. 创建 `docs/superpowers/specs/`、`docs/superpowers/specs/archive/`、`docs/superpowers/plans/`、`docs/superpowers/plans/archive/`、`docs/research/` 和 `docs/e2e/verify/` 目录。
+5. 从 `.template/templates/decision.md` 创建 `docs/decision.md`，从 `.template/templates/progress.md` 创建 `docs/progress.md`，从 `.template/templates/runtime-prompt.md` 创建或更新 `docs/prompt.md`，从 `.template/templates/workflow.yaml` 创建或更新 `docs/workflow.yaml`；已存在则不要覆盖，只补充缺失结构。
+   - `docs/prompt.md` 必须根据目标项目自身已有 prompt、`CLAUDE.md` / `AGENTS.md`、`docs/progress.md`、`docs/workflow.yaml`、`docs/superpowers/specs/`、`docs/superpowers/plans/`、`docs/research/` 和当前阶段相关规格生成。
 6. 如存在 `.template/scripts/validate-template.sh`，运行它检查 `.template/`。
 
 完成后再继续阅读下方内容。
@@ -28,16 +28,18 @@
 
 ### 主流程闭环
 
-AI 按 `.template/prompt.md` 主线推进，每个 spec 走完整闭环：
+AI 按 `.template/prompt.md` 主线推进，每个 spec / plan 走完整闭环：
 
 ```
-spec: drafting(产出,思考) → coding(superpowers: brainstorm→write-plan→execute[TDD+review]→verify) → done(代码完成) → 更新文档状态 → 归档 archive/ → 更新 workflow.yaml → 激活下一个 spec
+spec/plan: drafting(按 prompt 产出) → review(AI 自检 + 人类确认) → ready(Human Confirmed) → consumed(被后续阶段/实现使用) → verified(代码/验收通过) → archived(状态改为 Archived 后移动到对应 archive)
 ```
+
+Superpowers 负责每个阶段的工作纪律，不负责决定产品主线：构思/规格阶段用 brainstorming，实施计划用 writing-plans，开发按计划使用 TDD、review 和 verification 相关 skill。主线阶段、依赖和下一步以 `.template/prompt.md`、`docs/prompt.md` 和 `docs/workflow.yaml` 为准。
 
 ### 三条铁律
 
 1. **信息只活在一处**：现状(接口/数据/行为)→代码；决策→`decision.md`；状态→`progress.md`。文档只指向，不重复记录。
-2. **spec 是想清楚的脚手架**：产出必要(逼思考)，用完归档，不长期维护；现状不抄进 spec。
+2. **spec / plan 是想清楚的脚手架**：产出必要(逼思考)，经人类确认后可被后续阶段使用；使命完成后先把文件状态改为 `Archived`，再移动到对应 archive，不长期维护；现状不抄进 spec 或 plan。
 3. **验证 gate 驱动前进**：每步 verify 通过才进下一步；"应该可以"不算通过。
 
 ### 产出归位（每次产出按此自检）
@@ -49,23 +51,43 @@ spec: drafting(产出,思考) → coding(superpowers: brainstorm→write-plan→
 | 现在到哪 / 下一步 | `progress.md` | spec |
 | 产品边界 / 体验决策 | spec(设计快照) | — |
 
+这里的"归位"只表示不要把长期事实留在活跃 spec 或 plan 里：接口/数据/行为进入代码或代码生成物，重要取舍进入 `docs/decision.md`，当前状态进入 `docs/progress.md`。归档动作本身必须明确执行：完成并经人类确认后，先把文件内状态改为 `Archived`，再移动到对应 archive。`Human Confirmed` 只表示该 spec 或 plan 可被后续阶段消费，不等于可以立即归档。
+
+归档目录规则：
+
+- 阶段 spec：`docs/superpowers/specs/` → `docs/superpowers/specs/archive/`
+- Implementation plan：`docs/superpowers/plans/` → `docs/superpowers/plans/archive/`
+- 研究证据如需归档：`docs/research/` → `docs/research/archive/`，但仍被当前设计引用的研究材料不要提前归档。
+
 ### 主流程状态机（`docs/workflow.yaml`）
 
-跟踪主线各 spec 的状态/依赖/触发。**AI 完成一个 spec 必须更新本文件**——状态机转移不能只在上下文里(跨 session 会丢)，必须写回 `workflow.yaml`。
+跟踪主线各 spec / plan 的状态、依赖、文件路径和触发。**AI 完成一个 spec 或 plan 必须更新本文件**——状态机转移不能只在上下文里(跨 session 会丢)，必须写回 `workflow.yaml`。
 
-**状态**：`pending` → `drafting` → `coding` → `done` → `archived`
+`docs/workflow.yaml.current` 为权威当前 item；`docs/progress.md` 和 §5 阶段判断只能解释现状或辅助纠偏，不能覆盖 `current`。
 
-**转移规则**（完成一个 spec 时强制执行）：
+`docs/workflow.yaml` 跟踪 spec / plan 脚手架生命周期，默认到 `90-implementation-plan` 为止；进入代码实现后，进度由 `90-implementation-plan` 内 task、`docs/progress.md`、验证命令和 `docs/e2e/verify/` 报告跟踪。
 
-1. 代码完成 + verify 通过 → `done` → 更新文档状态 + 归档到 `archive/` → `archived`
-2. 扫描该 spec 的 `triggers`，把其中"所有 `depends_on` 都已 `archived`"的 `pending` spec → `drafting`
-3. `current` = 新激活的 spec；写回 `workflow.yaml`
+**workflow 状态**：`pending` → `drafting` → `review` → `ready` → `consumed` → `verified` → `archived`；按需阶段不适用时可标记为 `skipped`，但必须写明跳过原因。
 
-人类 review 每次转移（当前 spec、激活的下一个是否正确）。
+**spec / plan 内容状态**：`Draft / AI Extracted / Human Confirmed / Frozen / Deprecated / Archived`。两套状态不要混用：`Human Confirmed` 是内容确认，`archived` 是流程生命周期结束。
+
+**workflow item 必填字段**：`id`、`type`（`spec` 或 `plan`）、`artifact_path`、`archive_path`、`status`、`content_status`、`depends_on`、`triggers`。AI 不得只靠文件名推断归档目录。
+
+**转移规则**（完成一个 spec 或 plan 时强制执行）：
+
+1. AI 产出 spec 并完成自检 → `review`，请求人类 review。
+2. 人类确认后，spec 内容状态标记为 `Human Confirmed`，workflow 状态转为 `ready`。
+3. 后续阶段或实现开始使用该 spec 后 → `consumed`；依赖判断以 `ready` 或 `consumed` 为可用状态，不必等 `archived`。
+4. 对应代码、验收或下游产物验证通过 → `verified`。
+5. 完成并经人类确认后，先把文件内状态改为 `Archived`，再移动到对应 archive：spec 到 `docs/superpowers/specs/archive/`，plan 到 `docs/superpowers/plans/archive/`。
+6. 扫描该 spec / plan 的 `triggers`，把其中"所有 `depends_on` 都达到 `ready` 或更后状态，或已明确 `skipped`"的 `pending` item → `drafting`。
+7. `current` = 新激活的 item；写回 `workflow.yaml`。
+
+人类 review 的强制点：spec 从 `review` 到 `ready`、实施计划从 `review` 到 `ready`、验证完成后从 `verified` 到 `archived`。按需阶段跳过时必须在 `docs/prompt.md` 执行台账和 `docs/progress.md` 写明原因；例如 UX 不适用时，先把 `10-ux-prototype` 标记为 `skipped`，`20-architecture` 才能继续。其余小步状态更新由 AI 执行并写入 `docs/progress.md`。归档时必须同步更新 `docs/workflow.yaml`、`docs/progress.md` 和 `docs/prompt.md` 的执行台账。
 
 ### 长期只维护
 
-`README` + `decision.md` + `progress.md`（+ `CLAUDE.md`/`AGENTS.md`）。其余(spec / research / plan / verify)是过程产物，用完归档。
+`README` + `decision.md` + `progress.md`（+ `CLAUDE.md`/`AGENTS.md`）。其余(spec / research / plan / verify)是过程产物，确认、消费并验证后先改状态再归档。
 
 > 阶段诊断见 §5；执行某 spec 时用对应 superpowers 技能，产出按归位规则，状态转移按上面的状态机。
 
@@ -85,7 +107,8 @@ CLAUDE.md / AGENTS.md   ->  全局工程约束和 AI 行为边界（项目根目
   scripts/               ->  模板体系校验脚本
   reference/             ->  方法论参考，默认不进入 AI 工作上下文
 docs/prompt.md           ->  项目运行态 prompt，根据目标项目自身 prompt 和当前阶段生成
-docs/specs/              ->  思考脚手架(过程产物)，用完归档；现状真相以代码为准
+docs/superpowers/specs/              ->  规格脚手架(过程产物)，完成后归档到 docs/superpowers/specs/archive/；现状真相以代码为准
+docs/superpowers/plans/              ->  实施计划脚手架(过程产物)，完成后归档到 docs/superpowers/plans/archive/
 docs/research/           ->  领域调研、数据发现、证据、假设和后续设计引用
 docs/e2e/verify/         ->  真实 E2E 验收报告
 docs/decision.md         ->  决策记录，记录重要产品、技术、实现和验证取舍
@@ -95,7 +118,7 @@ docs/progress.md         ->  当前阶段、任务进度、验证状态和下一
 规格编号和执行阶段不是同一件事：
 
 - `00-03` 是核心必备规格，表示任何产品都应最终具备这些文档。
-- `05` 是研究与数据发现规格，用于在 UX 和系统设计前沉淀 `docs/research/05-domain-research.md`。
+- `05` 是研究与数据发现规格，用于在 UX 和系统设计前沉淀 `docs/superpowers/specs/05-domain-research.md`；支撑证据写入 `docs/research/`。
 - `10-50` 是按需设计规格，只有涉及对应复杂度时才使用。
 - `90` 是实施计划规格，通常在产品、架构和验收定义之后生成。
 - 实际执行顺序由本文件的"项目阶段判断"决定，不由文件编号直接决定。
@@ -103,20 +126,21 @@ docs/progress.md         ->  当前阶段、任务进度、验证状态和下一
 工程化必备产物：
 
 - `.template/` 默认随项目入库，不写入 `.gitignore`；如团队要求不入库，必须在 `docs/decision.md` 记录模板源和重装方式。
-- `.template/templates/` 必须包含运行态文档模板，至少覆盖 `decision.md`、`progress.md` 和 `runtime-prompt.md`。
+- `.template/templates/` 必须包含运行态文档模板，至少覆盖 `decision.md`、`progress.md`、`runtime-prompt.md` 和 `workflow.yaml`。
 - `.template/scripts/` 必须包含模板校验入口，默认使用 `validate-template.sh`。
 - `docs/decision.md` 记录长期决策，按 `.template/templates/decision.md` 创建或补齐。
 - `docs/progress.md` 记录当前阶段、任务状态、验证结果和下一步，按 `.template/templates/progress.md` 创建或补齐。
 - `docs/prompt.md` 记录目标项目当前可执行 prompt，按 `.template/templates/runtime-prompt.md` 创建或补齐，并融合目标项目已有 prompt。
-- `docs/research/` 记录领域调研、竞品、数据来源、数据链路、用户闭环、证据和待确认假设；主产物为 `docs/research/05-domain-research.md`。
-- 所有 `docs/specs/*.md` 项目实际规格必须维护规格状态：`Draft / AI Extracted / Human Confirmed / Frozen / Deprecated`。
+- `docs/workflow.yaml` 记录主流程状态机，按 `.template/templates/workflow.yaml` 创建或补齐。
+- `docs/research/` 记录领域调研、竞品、数据来源、数据链路、用户闭环、证据和待确认假设；Domain Research spec 主产物为 `docs/superpowers/specs/05-domain-research.md`。
+- 所有 `docs/superpowers/specs/*.md` 项目实际规格和 `docs/superpowers/plans/*.md` 项目实际计划必须维护规格状态：`Draft / AI Extracted / Human Confirmed / Frozen / Deprecated / Archived`。
 - 模板安装、模板修改或交付前，如存在 `.template/scripts/validate-template.sh`，必须运行 `.template/scripts/validate-template.sh .template`。
 
 冲突处理优先级：
 
 1. 人类当前明确指令。
 2. `CLAUDE.md` / `AGENTS.md` 中的项目级约束。
-3. `docs/specs/` 中已补全的项目实际规格。
+3. `docs/superpowers/specs/` 中已补全的项目实际规格和 `docs/superpowers/plans/` 中已补全的项目实际计划。
 4. `docs/prompt.md` 中的项目运行态 prompt。
 5. `.template/prompt.md` 中的阶段驱动要求。
 6. `.template/specs/` 和 `.template/reference/` 中的模板或方法论参考。
@@ -158,18 +182,20 @@ AI 进入项目后，先判断项目是否已有 `.template/` 目录，再选择
 
 1. 找到模板源目录。如果用户通过 `@coding_template/AI-BOOTSTRAP.md` 启动，模板源是 `coding_template/`。否则询问人类提供模板源路径。
 2. 将整个模板源目录复制到目标项目的 `.template/`。
-3. 创建 `docs/specs/`，用于保存项目实际规格。
-4. 创建 `docs/research/`，用于保存领域调研、数据发现和证据材料。
-5. 创建 `docs/e2e/verify/`，用于保存真实 E2E 验收报告。
-6. 从 `.template/templates/decision.md` 创建 `docs/decision.md`，已存在则补充缺失结构，不覆盖已有决策。
-7. 从 `.template/templates/progress.md` 创建 `docs/progress.md`，已存在则补充缺失结构，不覆盖已有进度。
-8. 从 `.template/templates/runtime-prompt.md` 创建或更新 `docs/prompt.md`，已存在则补充缺失结构，不覆盖已有项目 prompt 约定。
-9. 检查 `.gitignore` 不应忽略 `.template/`。如果团队明确要求模板不入库，必须在 `docs/decision.md` 或等价文件中记录模板源路径和重新安装方式。
-10. 如存在 `.template/scripts/validate-template.sh`，运行它检查 `.template/`。
-11. 检查目标项目根目录的 `CLAUDE.md` 和 `AGENTS.md`：
+3. 创建 `docs/superpowers/specs/` 和 `docs/superpowers/specs/archive/`，用于保存项目实际规格和已完成规格。
+4. 创建 `docs/superpowers/plans/` 和 `docs/superpowers/plans/archive/`，用于保存项目实际实施计划和已完成计划。
+5. 创建 `docs/research/`，用于保存领域调研、数据发现和证据材料。
+6. 创建 `docs/e2e/verify/`，用于保存真实 E2E 验收报告。
+7. 从 `.template/templates/decision.md` 创建 `docs/decision.md`，已存在则补充缺失结构，不覆盖已有决策。
+8. 从 `.template/templates/progress.md` 创建 `docs/progress.md`，已存在则补充缺失结构，不覆盖已有进度。
+9. 从 `.template/templates/runtime-prompt.md` 创建或更新 `docs/prompt.md`，已存在则补充缺失结构，不覆盖已有项目 prompt 约定。
+10. 从 `.template/templates/workflow.yaml` 创建或更新 `docs/workflow.yaml`，已存在则补充缺失结构，不覆盖已有状态。
+11. 检查 `.gitignore` 不应忽略 `.template/`。如果团队明确要求模板不入库，必须在 `docs/decision.md` 或等价文件中记录模板源路径和重新安装方式。
+12. 如存在 `.template/scripts/validate-template.sh`，运行它检查 `.template/`。
+13. 检查目标项目根目录的 `CLAUDE.md` 和 `AGENTS.md`：
    - **不存在**：从 `.template/` 复制到根目录，然后根据目标项目的代码结构和配置文件，替换模板中的 `[变量]`。
    - **已存在**：**不要覆盖**。读取已有内容，根据目标项目实际情况补充缺失章节，保留原有约定不变。
-12. 根据目标项目自身 prompt 来源、根目录 `CLAUDE.md` / `AGENTS.md`、`docs/progress.md`、`docs/research/` 和当前阶段，把 `.template/prompt.md` 中对应阶段改写为 `docs/prompt.md` 的"当前推荐 Prompt"。
+14. 根据目标项目自身 prompt 来源、根目录 `CLAUDE.md` / `AGENTS.md`、`docs/progress.md`、`docs/workflow.yaml`、当前阶段相关 `docs/superpowers/specs/`、`docs/superpowers/plans/`、`docs/research/`，把 `.template/prompt.md` 中对应阶段改写为 `docs/prompt.md` 的"当前推荐 Prompt"。
 
 安装完成后，AI **必须暂停**，提醒人类确认根目录 `CLAUDE.md` / `AGENTS.md` 中的项目定位、技术方向、本地开发环境，以及 `docs/prompt.md` 的当前推荐 prompt 是否正确。未经人类确认，不进入下一阶段判断。
 
@@ -203,7 +229,7 @@ AI 进入项目后，先判断项目是否已有 `.template/` 目录，再选择
 
 **模板适配规则：**
 
-- 项目不适用的 spec（如纯后端无 UI → 跳过 `10-ux-prototype.md`），**必须**在 `CLAUDE.md` / `AGENTS.md` 中说明跳过原因。
+- 项目不适用的 spec（如纯后端无 UI → 跳过 `10-ux-prototype.md`），**必须**在 `docs/workflow.yaml` 标记为 `skipped`，并在 `docs/prompt.md` 执行台账、`docs/progress.md`、`CLAUDE.md` / `AGENTS.md` 中说明跳过原因。
 - 已有项目约定（`.editorconfig`、lint 规则、命名规范）**必须**尊重，不覆盖。
 - 如果项目已有 `CLAUDE.md` 或 `AGENTS.md`，**必须**在其基础上补充，不替换。
 - 当前工作不依赖的缺口，记录为待补项，**不要**阻断工作启动。
@@ -217,8 +243,9 @@ AI 进入项目后，先判断项目是否已有 `.template/` 目录，再选择
 1. 目标项目已有 prompt：`docs/prompt.md`、根目录 `prompt.md` / `PROMPT.md`、`docs/*prompt*.md` 或工具专属 prompt 文件；不存在则记录"无"。
 2. 根目录 `CLAUDE.md` / `AGENTS.md` 的项目级约束。
 3. `docs/progress.md` 的当前阶段、阻塞、验证状态和下一步。
-4. 当前阶段直接相关的 `docs/specs/` 文件和 `docs/research/` 研究结论；项目规格不存在时，只读取 `.template/specs/` 了解结构。
-5. `.template/prompt.md` 中被阶段判断选中的阶段 prompt 或通用 prompt。
+4. `docs/workflow.yaml` 的当前 item、依赖、状态、artifact_path 和 archive_path。
+5. 当前阶段直接相关的 `docs/superpowers/specs/`、`docs/superpowers/plans/` 文件和 `docs/research/` 研究结论；项目规格不存在时，只读取 `.template/specs/` 了解结构。
+6. `.template/prompt.md` 中被阶段判断选中的阶段 prompt 或通用 prompt。
 
 更新规则：
 
@@ -227,7 +254,7 @@ AI 进入项目后，先判断项目是否已有 `.template/` 目录，再选择
 - 每次选择、执行、跳过或完成阶段 prompt 后，AI 必须更新"Prompt 执行台账"；标记为 `Skipped` 必须写原因，标记为 `Done` 必须有输出产物，标记为 `Blocked` 必须写阻塞条件。
 - "当前推荐 Prompt" 必须是可直接发送给 AI 的目标项目版本，替换项目名称、输入文件路径、输出文件路径、验证命令、前后端地址、测试账号占位说明和当前阶段约束。
 - 如果缺少目标用户、MVP 范围、业务验收标准、真实账号、密钥或生产数据，`docs/prompt.md` 必须把缺口写成待确认项，不能自行发明。
-- `docs/prompt.md` 不能替代长期事实；页面、接口、数据、验收、技术约束等长期事实必须写入对应 `docs/specs/`。研究证据、数据来源、竞品材料和待确认假设写入 `docs/research/`，确认后的长期事实再回写 specs。
+- `docs/prompt.md` 不能替代长期事实；页面、接口、数据、验收、技术约束等长期事实必须写入对应 `docs/superpowers/specs/`。研究证据、数据来源、竞品材料和待确认假设写入 `docs/research/`，确认后的长期事实再回写 specs。
 
 ---
 
@@ -238,15 +265,15 @@ AI 进入项目后，先判断项目是否已有 `.template/` 目录，再选择
 1. `CLAUDE.md` 或 `AGENTS.md`（项目根目录）
 2. `docs/prompt.md`（如不存在，读取 `.template/templates/runtime-prompt.md` 了解结构）
 3. `.template/prompt.md`
-4. `docs/specs/00-idea-brief.md`（如不存在，读取 `.template/specs/00-idea-brief.md` 了解模板结构）
-5. `docs/specs/01-product-spec.md`（如不存在，读取 `.template/specs/01-product-spec.md` 了解模板结构）
-6. `docs/research/05-domain-research.md`（如不存在，读取 `.template/specs/05-domain-research.md` 了解模板结构）
-7. `docs/specs/02-e2e-acceptance.md`（如不存在，读取 `.template/specs/02-e2e-acceptance.md` 了解模板结构）
+4. `docs/superpowers/specs/00-idea-brief.md`（如不存在，读取 `.template/specs/00-idea-brief.md` 了解模板结构）
+5. `docs/superpowers/specs/01-product-spec.md`（如不存在，读取 `.template/specs/01-product-spec.md` 了解模板结构）
+6. `docs/superpowers/specs/05-domain-research.md`（如不存在，读取 `.template/specs/05-domain-research.md` 了解模板结构）
+7. `docs/superpowers/specs/02-e2e-acceptance.md`（如不存在，读取 `.template/specs/02-e2e-acceptance.md` 了解模板结构）
 8. `docs/progress.md`（如不存在，读取 `.template/templates/progress.md` 了解模板结构）
 
-路径规则：`.template/specs/` 是模板原件，不写项目事实；`docs/specs/` 是思考脚手架（过程产物），用完归档。**现状（接口 / 数据 / 行为）以代码为准**（OpenAPI / ORM / 测试），不要优先读 spec 查现状。
+路径规则：`.template/specs/` 是模板原件，不写项目事实；`docs/superpowers/specs/` 是规格脚手架（过程产物），完成并确认后先改状态为 `Archived`，再移动到 `docs/superpowers/specs/archive/`；`docs/superpowers/plans/` 是计划脚手架，完成并确认后先改状态为 `Archived`，再移动到 `docs/superpowers/plans/archive/`。**现状（接口 / 数据 / 行为）以代码为准**（OpenAPI / ORM / 测试），不要优先读 spec 查现状。
 
-如果项目没有 `docs/specs/`，检查是否有：
+如果项目没有 `docs/superpowers/specs/`，检查是否有：
 
 - `docs/product/`
 - `docs/prototypes/`
@@ -259,26 +286,30 @@ AI 进入项目后，先判断项目是否已有 `.template/` 目录，再选择
 
 ## 5. 项目阶段判断
 
+当前阶段以 `docs/workflow.yaml.current` 为权威；本表用于理解该 item 属于哪类工作、该做什么、缺什么。若本表诊断结果与 `docs/workflow.yaml.current` 不一致，AI 必须报告差异，等待人类确认后再同步更新 `docs/workflow.yaml`、`docs/progress.md` 和 `docs/prompt.md`。
+
+`docs/workflow.yaml` 只跟踪 spec / plan 脚手架到 `90-implementation-plan` 为止；实现阶段、原型对齐、E2E 验收和交付阶段属于执行层，分别由 `90-implementation-plan` 内 task、`docs/progress.md`、验证命令、`docs/e2e/verify/` 报告和 `03-delivery-report.md` 跟踪。
+
 读取最小上下文后，把项目归入一个阶段：
 
 | 阶段 | 判断标准 | 推荐下一步 | 主要产物 |
 | --- | --- | --- | --- |
 | 阶段 0A：模板安装 | 项目无 `.template/` 目录 | 执行本文件 §3A | `.template/` + 根目录 CLAUDE.md / AGENTS.md + `docs/decision.md` + `docs/progress.md` + `docs/prompt.md` + 模板校验结果 |
 | 阶段 0B：已有项目适配 | 有代码或文档，但未使用模板体系 | 执行本文件 §3B，从项目提取信息反填模板 | 适配后的 CLAUDE.md + `docs/prompt.md` + 按需 spec 初稿 |
-| Idea 阶段 | 只有想法，没有产品规格 | 使用 `.template/prompt.md` 阶段 1 | `docs/specs/00-idea-brief.md` |
-| 产品规格阶段 | 有 idea，但页面/用户路径不清 | 使用 `.template/prompt.md` 阶段 2 | `docs/specs/01-product-spec.md` |
-| 领域研究 / 数据发现阶段（Domain Research / Data Discovery） | 有产品规格，但缺竞品、数据来源、数据链路或用户闭环研究 | 使用 `.template/prompt.md` 阶段 3 | `docs/research/05-domain-research.md` |
-| 原型阶段 | 有产品规格和研究结论，但没有原型或 UX 规范 | 视项目类型使用 `.template/prompt.md` 阶段 4 | `docs/specs/10-ux-prototype.md` |
+| Idea 阶段 | 只有想法，没有产品规格 | 使用 `.template/prompt.md` 阶段 1 | `docs/superpowers/specs/00-idea-brief.md` |
+| 产品规格阶段 | 有 idea，但页面/用户路径不清 | 使用 `.template/prompt.md` 阶段 2 | `docs/superpowers/specs/01-product-spec.md` |
+| 领域研究 / 数据发现阶段（Domain Research / Data Discovery） | 有产品规格，但缺竞品、数据来源、数据链路或用户闭环研究 | 使用 `.template/prompt.md` 阶段 3 | `docs/superpowers/specs/05-domain-research.md` + `docs/research/` 证据 |
+| 原型阶段 | 有产品规格和研究结论，但没有原型或 UX 规范 | 视项目类型使用 `.template/prompt.md` 阶段 4 | `docs/superpowers/specs/10-ux-prototype.md` |
 | 系统设计阶段 | 有产品/研究/原型，但缺架构、数据、API 设计 | 使用 `.template/prompt.md` 阶段 5 | `20/30/40/50` 相关 specs |
-| 验收定义阶段 | 有设计，但缺 E2E 验收规范 | 使用 `.template/prompt.md` 阶段 6 | `docs/specs/02-e2e-acceptance.md` |
-| 计划阶段 | 有验收规范，但缺实施计划 | 使用 `.template/prompt.md` 阶段 7 | `docs/specs/90-implementation-plan.md` |
+| 验收定义阶段 | 有设计，但缺 E2E 验收规范 | 使用 `.template/prompt.md` 阶段 6 | `docs/superpowers/specs/02-e2e-acceptance.md` |
+| 计划阶段 | 有验收规范，但缺实施计划 | 使用 `.template/prompt.md` 阶段 7 | `docs/superpowers/plans/90-implementation-plan.md` |
 | 实现阶段 | 有计划，正在开发 | 使用 `.template/prompt.md` 阶段 8 | 代码变更和阶段验证 |
 | 对齐阶段 | 已实现 UI，但未和原型对齐 | 使用 `.template/prompt.md` 阶段 9 | 原型对齐结果和修复项 |
 | 验收阶段 | 已实现，未完成全量 E2E | 使用 `.template/prompt.md` 阶段 10 | `docs/e2e/verify/*-verify.md` |
-| 交付阶段 | E2E 通过，缺交付报告 | 使用 `.template/prompt.md` 阶段 11 | `docs/specs/03-delivery-report.md` |
+| 交付阶段 | E2E 通过，缺交付报告 | 使用 `.template/prompt.md` 阶段 11 | `docs/superpowers/specs/03-delivery-report.md` |
 | 迭代阶段 | 已交付后新增/修改需求 | 使用 `.template/prompt.md` 通用：已交付产品增量迭代 | Delta Spec 和回归范围 |
 
-阶段表决定实际执行顺序。规格文件编号只表示核心程度和归类，不代表必须按编号从小到大执行。
+实际执行顺序由 `docs/workflow.yaml.current`、`depends_on` 和 `triggers` 决定；本表用于阶段解释、初始化和纠偏。规格文件编号只表示核心程度和归类，不代表必须按编号从小到大执行。
 
 `20/30/40/50` 虽为按需规格，但不能由 AI 为了加快实现自行跳过。凡涉及数据库、外部服务、权限、支付、额度、异步任务、复杂前后端接口、多角色流程或生产数据链路，进入实施计划前必须补齐对应设计规格。
 
@@ -307,7 +338,7 @@ AI **必须**输出一份文档状态表：
 - spec 有明确规格状态，且 AI 反填内容标记为 `AI Extracted` 或 `Draft`，不能冒充 `Human Confirmed`。
 - 有明确验收标准，不只是描述愿景。
 - 涉及实现的内容能追溯到页面、接口、数据、研究结论或 E2E 用例。
-- 进入系统设计前，`docs/research/05-domain-research.md` 已覆盖竞品 / 数据来源 / 数据链路 / 用户闭环，或明确记录跳过原因。
+- 进入系统设计前，`docs/superpowers/specs/05-domain-research.md` 已覆盖竞品 / 数据来源 / 数据链路 / 用户闭环，且支撑证据已写入 `docs/research/`，或明确记录跳过原因。
 - `docs/prompt.md` 的当前推荐 prompt 已根据目标项目自身 prompt 和当前阶段替换路径、输入、输出、验证命令，不只是复制 `.template/prompt.md`。
 - `docs/prompt.md` 包含 Prompt 执行台账，且已根据项目阶段把已完成、跳过、阻塞和待确认的阶段 prompt 标清楚。
 - 如果缺失，AI 应说明应补哪个文件，而不是直接开始实现。
@@ -368,7 +399,7 @@ AI **必须**检查或询问：
 
 AI 可以自行补齐以下低风险缺口：
 
-- 创建缺失的 `docs/specs/` 和 `docs/research/` 目录。
+- 创建缺失的 `docs/superpowers/specs/`、`docs/superpowers/specs/archive/`、`docs/superpowers/plans/`、`docs/superpowers/plans/archive/` 和 `docs/research/` 目录。
 - 将 `coding_template/` 整体复制到 `.template/`。
 - 检查 `.gitignore` 不应忽略 `.template/`；如团队要求不入库，记录模板源路径和重新安装方式。
 - 如果根目录没有 `CLAUDE.md` / `AGENTS.md`，从 `.template/` 复制并根据项目代码结构和配置替换 `[变量]`。
@@ -413,7 +444,7 @@ AI **不得**自行补齐以下内容，必须询问人类：
 
 - 目标用户、MVP 范围、明确不做项变化 → `00-idea-brief.md`
 - 页面、用户路径、字段、状态、验收标准变化 → `01-product-spec.md`
-- 领域术语、竞品结论、数据来源、数据链路、用户闭环、研究证据或待确认假设变化 → `docs/research/05-domain-research.md`
+- 领域术语、竞品结论、数据来源、数据链路、用户闭环、研究证据或待确认假设变化 → `docs/superpowers/specs/05-domain-research.md`
 - E2E 路径、断言、缺陷分级、验收报告要求变化 → `02-e2e-acceptance.md`
 - 架构边界、数据模型、API 契约、实现约束变化 → `20/30/40/50` 对应 spec
 - Phase 范围、验证命令、E2E 路径变化 → `90-implementation-plan.md`
@@ -431,8 +462,8 @@ AI **不得**自行补齐以下内容，必须询问人类：
 
 如果项目中没有 `.template/` 目录，请先将 `coding_template/` 整体复制到项目的 `.template/` 目录，
 检查 `.gitignore` 不应忽略 `.template/`，然后从 `.template/` 复制 CLAUDE.md 和 AGENTS.md 到项目根目录。
-从 `.template/templates/` 创建 docs/decision.md、docs/progress.md 和 docs/prompt.md，并创建 docs/research/，已存在则补齐缺失结构但不要覆盖已有内容。
-docs/prompt.md 必须根据目标项目自身已有 prompt、CLAUDE.md / AGENTS.md、docs/progress.md、docs/research/ 和当前阶段相关规格生成。
+从 `.template/templates/` 创建 docs/decision.md、docs/progress.md、docs/prompt.md 和 docs/workflow.yaml，并创建 docs/superpowers/specs/、docs/superpowers/specs/archive/、docs/superpowers/plans/、docs/superpowers/plans/archive/ 和 docs/research/，已存在则补齐缺失结构但不要覆盖已有内容。
+docs/prompt.md 必须根据目标项目自身已有 prompt、CLAUDE.md / AGENTS.md、docs/progress.md、docs/workflow.yaml、docs/superpowers/specs/、docs/superpowers/plans/、docs/research/ 和当前阶段相关规格生成。
 如果存在 `.template/scripts/validate-template.sh`，运行 `.template/scripts/validate-template.sh .template`。
 
 按 AI-BOOTSTRAP.md 要求判断当前项目阶段，检查必要文档和验证条件，列出缺口，

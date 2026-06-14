@@ -1,74 +1,129 @@
 # Workflow State Machine — 主流程状态机
 #
-# 跟踪 prompt.md 主线上各 spec 的状态、依赖和触发。
-# AI 完成一个 spec(代码完成 + verify + 归档)后，必须按转移规则更新本文件。
+# 跟踪 prompt.md 主线上各 spec / plan 的状态、依赖、文件路径和触发。
+# AI 完成一个 spec/plan 的产出、确认、消费、验证或归档后，必须按转移规则更新本文件。
 # 状态机转移不能只在 AI 上下文里——跨 session 会丢，必须写回这里。
+# 本文件跟踪 spec/plan 脚手架到 90-implementation-plan 为止；之后代码实现按 plan task 和 docs/e2e/verify/ 报告跟踪。
 # 详见 .template/AI-BOOTSTRAP.md §0 方法论主线。
 
-current: ""   # 当前活跃 spec id；项目启动时为空，激活第一个 spec 后填入
+current: ""   # 当前活跃 item id；项目启动时为空，激活第一个 item 后填入
 
-# spec 状态机: pending → drafting → coding → done → archived
-#   pending   : 未开始（等待依赖 archived）
-#   drafting  : 产出 spec 中（思考/设计，用 superpowers brainstorm）
-#   coding    : 用 superpowers 写代码中（write-plan → execute[TDD+review] → verify）
-#   done      : 代码完成 + verify 通过
-#   archived  : 已更新文档状态 + 归档到 archive/（使命完成）
+# workflow 状态机: pending → drafting → review → ready → consumed → verified → archived
+#   pending   : 未开始（等待依赖 ready/consumed/verified/archived）
+#   drafting  : 按 prompt.md 主线产出 spec 中（思考/设计，用 Superpowers brainstorming）
+#   review    : AI 已产出并自检，等待人类 review
+#   ready     : 人类已确认；spec 内容状态可标记为 Human Confirmed
+#   consumed  : 已被后续 spec、implementation plan 或实现阶段使用
+#   verified  : 对应代码、验收或下游产物已验证通过
+#   archived  : 文件内状态已改为 Archived，并已移入对应 archive
+#   skipped   : 明确不适用；必须在 docs/prompt.md 执行台账和 docs/progress.md 写明跳过原因
 #
-# 转移规则（完成一个 spec 时强制执行）:
-#   1. done → 更新文档状态(spec 标记完成) + 归档到 archive/ → status = archived
-#   2. 扫描该 spec 的 triggers，把其中"所有 depends_on 都已 archived"的 pending spec → drafting
-#   3. current = 新激活的 spec
-#   4. 写回本文件
-#   人类 review 每次转移（当前 spec、激活的下一个是否正确）。
+# spec/plan 内容状态: Draft / AI Extracted / Human Confirmed / Frozen / Deprecated / Archived
+# 不要混用 workflow 状态和 spec/plan 内容状态。Human Confirmed 只表示可消费，不表示可归档。
+# 归档路径: spec → docs/superpowers/specs/archive/；plan → docs/superpowers/plans/archive/。
+#
+# 转移规则（完成一个 spec/plan 时强制执行）:
+#   1. drafting → review: AI 产出 spec 并完成自检
+#   2. review → ready: 人类确认；spec 内容状态标记为 Human Confirmed
+#   3. ready → consumed: 后续阶段或实现开始使用该 spec
+#   4. consumed → verified: 对应代码、验收或下游产物验证通过
+#   5. verified → archived: 先把文件内状态改为 Archived，再移入对应 archive
+#   6. 扫描该 spec/plan 的 triggers，把其中"所有 depends_on 都达到 ready 或更后状态，或已明确 skipped"的 pending item → drafting
+#   7. current = 新激活的 item；写回本文件
+#   人类 review 强制点: review → ready、implementation plan review → ready、verified → archived。
+#   按需阶段强制点: 只有在状态标记为 skipped 且写明原因后，后续依赖才能继续。
 
 # 默认主线（按 prompt.md 阶段序；项目可增删 spec 或调整依赖）:
-specs:
+items:
   - id: 00-idea-brief
+    type: spec
+    artifact_path: docs/superpowers/specs/00-idea-brief.md
+    archive_path: docs/superpowers/specs/archive/
     status: pending
+    content_status: Draft
     depends_on: []
     triggers: [01-product-spec]
 
   - id: 01-product-spec
+    type: spec
+    artifact_path: docs/superpowers/specs/01-product-spec.md
+    archive_path: docs/superpowers/specs/archive/
     status: pending
+    content_status: Draft
     depends_on: [00-idea-brief]
     triggers: [05-domain-research]
 
   - id: 05-domain-research
+    type: spec
+    artifact_path: docs/superpowers/specs/05-domain-research.md
+    archive_path: docs/superpowers/specs/archive/
     status: pending
+    content_status: Draft
     depends_on: [01-product-spec]
-    triggers: [10-ux-prototype, 20-architecture]
+    triggers: [10-ux-prototype]
 
   - id: 10-ux-prototype        # 按需；纯后端/无 C 端 UI 可删
+    type: spec
+    artifact_path: docs/superpowers/specs/10-ux-prototype.md
+    archive_path: docs/superpowers/specs/archive/
     status: pending
+    content_status: Draft
+    optional: true
+    required_when: "产品涉及 C 端体验、复杂页面、视觉设计或可交互原型"
+    skip_requires: "在 docs/prompt.md 执行台账和 docs/progress.md 写明 Skipped 原因"
     depends_on: [05-domain-research]
     triggers: [20-architecture]
 
   - id: 20-architecture
+    type: spec
+    artifact_path: docs/superpowers/specs/20-architecture.md
+    archive_path: docs/superpowers/specs/archive/
     status: pending
-    depends_on: [05-domain-research]
+    content_status: Draft
+    depends_on: [05-domain-research, 10-ux-prototype]
     triggers: [30-data-design, 40-api-and-pages]
 
   - id: 30-data-design
+    type: spec
+    artifact_path: docs/superpowers/specs/30-data-design.md
+    archive_path: docs/superpowers/specs/archive/
     status: pending
+    content_status: Draft
     depends_on: [20-architecture]
     triggers: [50-implementation-constraints]
 
   - id: 40-api-and-pages
+    type: spec
+    artifact_path: docs/superpowers/specs/40-api-and-pages.md
+    archive_path: docs/superpowers/specs/archive/
     status: pending
+    content_status: Draft
     depends_on: [20-architecture]
     triggers: [50-implementation-constraints]
 
   - id: 50-implementation-constraints
+    type: spec
+    artifact_path: docs/superpowers/specs/50-implementation-constraints.md
+    archive_path: docs/superpowers/specs/archive/
     status: pending
+    content_status: Draft
     depends_on: [30-data-design, 40-api-and-pages]
     triggers: [02-e2e-acceptance]
 
   - id: 02-e2e-acceptance
+    type: spec
+    artifact_path: docs/superpowers/specs/02-e2e-acceptance.md
+    archive_path: docs/superpowers/specs/archive/
     status: pending
+    content_status: Draft
     depends_on: [50-implementation-constraints]
     triggers: [90-implementation-plan]
 
   - id: 90-implementation-plan
+    type: plan
+    artifact_path: docs/superpowers/plans/90-implementation-plan.md
+    archive_path: docs/superpowers/plans/archive/
     status: pending
+    content_status: Draft
     depends_on: [02-e2e-acceptance]
     triggers: []   # 后续是代码实现，按 implementation-plan 内的 task 跟踪

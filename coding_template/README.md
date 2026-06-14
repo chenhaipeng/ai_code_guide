@@ -13,7 +13,7 @@ AI 协作开发的瓶颈不是代码生成速度，而是**信息对齐**——�
 | **progress.md** | 现在到哪（状态） | 轻量维护，必须短 | `templates/progress.md` |
 | **README / CLAUDE.md / AGENTS.md** | 导航与约束（指向上面的源） | 改约束 / 入口时同步 | 顶层 |
 
-> `specs/` 是"想清楚"的**思考脚手架**：写的目的是逼你想清楚（价值在创建时兑现），用完归档 / 删除，不长期维护。现状类信息回写到代码，不留在 spec。详见 `reference/documentation-governance.md`。
+> `specs/` / `plans/` 是"想清楚"和"拆清楚"的**思考脚手架**：写的目的是逼你想清楚（价值在创建时兑现）。经人类确认后供后续阶段消费，完成并确认后先把文件内状态改为 `Archived`，再移动到各自 archive，不长期维护。现状类信息回写到代码，不留在 spec 或 plan。详见 `reference/documentation-governance.md`。
 
 ## 消费场景：谁何时读什么
 
@@ -49,7 +49,7 @@ AI 协作开发的瓶颈不是代码生成速度，而是**信息对齐**——�
 | `prompt.md` | 人类 / AI | 分阶段 prompt 模板原件，从 idea 到交付，不写项目事实。 |
 | `specs/` | 人类 / AI | 各阶段规格模板，按需复制和补全。 |
 | `templates/` | AI | 项目运行态文档模板，如决策记录、进度记录和运行态 prompt。 |
-| `scripts/` | AI / 人类 | 模板体系校验脚本。 |
+| `scripts/` | AI / 人类 | 模板体系校验脚本和校验器负向测试。 |
 | `reference/` | 人类 | 方法论参考（含 `documentation-governance.md` 文档治理），不是 AI 每次必须读取的执行上下文。 |
 
 `CLAUDE.md` 和 `AGENTS.md` 内容默认保持一致，只是适配不同 AI 工具的自动发现入口。修改其中一个时，必须同步另一个；如果项目只使用其中一种工具，也应在另一个文件顶部说明它由谁同步或不再使用。
@@ -73,9 +73,12 @@ your-project/
 │   └── reference/
 ├── docs/
 │   ├── prompt.md           ← 目标项目运行态 prompt（根据项目自身 prompt 和当前阶段生成）
-│   ├── specs/              ← 项目实际规格（从模板补全后存入）
+│   ├── superpowers/
+│   │   ├── specs/          ← 项目实际规格（Superpowers 默认 spec 目录）
+│   │   │   └── archive/    ← 状态已改为 Archived 的历史规格
+│   │   └── plans/          ← 项目实际实施计划（Superpowers 默认 plan 目录）
+│   │       └── archive/    ← 状态已改为 Archived 的历史计划
 │   ├── research/           ← 领域调研、竞品、数据来源、数据链路、证据和假设
-│   │   ├── 05-domain-research.md
 │   │   ├── competitors/
 │   │   ├── data-sources/
 │   │   ├── data-lineage/
@@ -85,15 +88,16 @@ your-project/
 │   ├── e2e/verify/         ← 真实 E2E 验收报告
 │   ├── decision.md         ← 决策记录，记录技术、产品和实现取舍
 │   ├── progress.md         ← 当前阶段、任务进度、验证状态和下一步
-│   └── workflow.yaml       ← 主流程状态机（spec 状态/依赖/触发），见 AI-BOOTSTRAP §0
+│   └── workflow.yaml       ← 主流程状态机（spec/plan 状态/路径/依赖/触发），见 AI-BOOTSTRAP §0
 ```
 
 其中：
 
 - `.template/` 保存模板原件，不写项目事实。AI 读取 `.template/AI-BOOTSTRAP.md` 启动诊断。默认建议随项目入库，确保新环境 clone 后仍能使用模板。
 - `docs/prompt.md` 保存目标项目运行态 prompt，由 AI 根据目标项目已有 prompt、项目约束、进度和当前阶段生成；已有则补充更新，不覆盖项目原有约定。
-- `docs/specs/` 保存目标项目补全后的规格。**这些是脚手架（过程产物），用完归档或删除，不长期维护**（详见 `reference/documentation-governance.md`）；接口 / 数据真相以代码为准（OpenAPI / ORM），不手写。
-- `docs/research/` 保存目标项目的领域调研、竞品、数据来源、数据链路、用户闭环、证据和待确认假设；主产物为 `docs/research/05-domain-research.md`。
+- `docs/superpowers/specs/` 保存目标项目补全后的规格。**这些是脚手架（过程产物），经人类确认后供后续阶段消费，完成并确认后先改状态为 `Archived`，再移动到 `docs/superpowers/specs/archive/`**（详见 `reference/documentation-governance.md`）；接口 / 数据真相以代码为准（OpenAPI / ORM），不手写。
+- `docs/superpowers/plans/` 保存目标项目补全后的实施计划，完成并确认后先改状态为 `Archived`，再移动到 `docs/superpowers/plans/archive/`。
+- `docs/research/` 保存目标项目的领域调研、竞品、数据来源、数据链路、用户闭环、证据和待确认假设；主产物为 `docs/superpowers/specs/05-domain-research.md`。
 - `docs/progress.md` 保存跨 session 的当前状态，长任务中断、阶段切换和交付前后必须更新。
 - `CLAUDE.md` / `AGENTS.md` 放在项目根目录，供 AI 工具自动发现。
 
@@ -102,11 +106,25 @@ your-project/
 1. 在 AI 工具中发送启动 Prompt（见下方），AI 会将 `coding_template/` 复制到目标项目的 `.template/` 目录。
 2. AI 检查 `.gitignore` 不应忽略 `.template/`；如果团队明确要求模板原件不入库，必须在 `docs/decision.md` 记录模板源路径和重新安装方式。
 3. AI 检查根目录 `CLAUDE.md` / `AGENTS.md`：不存在则根据项目代码创建，已存在则补充缺失章节。
-4. AI 从 `.template/templates/` 创建 `docs/decision.md`、`docs/progress.md` 和 `docs/prompt.md`，并创建 `docs/research/`；`docs/prompt.md` 必须融合目标项目自身已有 prompt。
+4. AI 从 `.template/templates/` 创建 `docs/decision.md`、`docs/progress.md`、`docs/prompt.md` 和 `docs/workflow.yaml`，并创建 `docs/superpowers/specs/`、`docs/superpowers/plans/`、`docs/research/`；`docs/prompt.md` 必须融合目标项目自身已有 prompt。
 5. AI 运行 `.template/scripts/validate-template.sh .template` 检查模板体系。
 6. AI 根据 `AI-BOOTSTRAP.md` 输出项目阶段、文档缺口、验证条件，并把 `.template/prompt.md` 中对应阶段改写进 `docs/prompt.md`。
 7. 你确认后，按 `docs/prompt.md` 中的当前推荐 prompt 生成或补齐规格。
 8. 每个阶段完成后写入对应规格、验证报告或交付报告，并更新 `docs/progress.md`。
+
+## 标准闭环流程
+
+目标项目启动后，AI 和人类按同一条主线推进：
+
+1. `docs/workflow.yaml` 决定当前 item、依赖、产物路径和归档路径。
+2. `docs/prompt.md` 给出当前可执行 prompt，输入必须来自项目约束、`docs/progress.md`、`docs/workflow.yaml`、当前相关 specs / plans / research。
+3. AI 使用 Superpowers 对应 skill 产出当前 spec 或 plan，并写入 `docs/superpowers/specs/` 或 `docs/superpowers/plans/`。
+4. 产出完成后 workflow 进入 `review`，人类确认后进入 `ready`，文件内容状态可标记为 `Human Confirmed`。
+5. 后续阶段开始使用该产物后进入 `consumed`；对应实现、验收或下游产物验证通过后进入 `verified`。
+6. 完成并经人类确认后，先把文件内规格状态改为 `Archived`，再移动到 `artifact_path` 对应的 `archive_path`。
+7. 每次状态变化都必须同步更新 `docs/workflow.yaml`、`docs/progress.md` 和 `docs/prompt.md` 的执行台账。
+
+按需阶段不能静默跳过。以 UX / Prototype 为例：如果产品不涉及 C 端体验、复杂页面、视觉设计或可交互原型，必须把 `10-ux-prototype` 标记为 `skipped` 并写明原因；否则 `20-architecture` 不能继续。
 
 ## AI 启动 Prompt
 
@@ -120,8 +138,8 @@ your-project/
 - 如果不存在，从 `.template/` 复制到根目录，并根据项目代码替换 [变量]。
 - 如果已存在，不要覆盖，只补充缺失章节。
 
-然后从 `.template/templates/` 创建 docs/decision.md、docs/progress.md 和 docs/prompt.md（已存在则不要覆盖，只补充缺失结构），并创建 docs/research/。
-docs/prompt.md 必须根据目标项目自身已有 prompt、CLAUDE.md / AGENTS.md、docs/progress.md、docs/research/ 和当前阶段相关规格生成。
+然后从 `.template/templates/` 创建 docs/decision.md、docs/progress.md、docs/prompt.md 和 docs/workflow.yaml（已存在则不要覆盖，只补充缺失结构），并创建 docs/superpowers/specs/、docs/superpowers/specs/archive/、docs/superpowers/plans/、docs/superpowers/plans/archive/ 和 docs/research/。
+docs/prompt.md 必须根据目标项目自身已有 prompt、CLAUDE.md / AGENTS.md、docs/progress.md、docs/workflow.yaml、docs/superpowers/specs/、docs/superpowers/plans/、docs/research/ 和当前阶段相关规格生成。
 
 按 AI-BOOTSTRAP.md 要求判断当前项目阶段，检查必要文档和验证条件，列出缺口，
 并推荐下一步应该使用 `.template/prompt.md` 中的哪个阶段 prompt，同时写入或更新 docs/prompt.md 的当前推荐 prompt。安装或反填完成后先暂停，等待我确认后再进入下一阶段。
@@ -136,7 +154,7 @@ docs/prompt.md 必须根据目标项目自身已有 prompt、CLAUDE.md / AGENTS.
 ## 使用原则
 
 - `CLAUDE.md` / `AGENTS.md` 只放全局约束和索引，不内联复杂规格。
-- 具体产品、页面、架构和验收标准写入 `docs/specs/`（脚手架，用完归档）；**接口与数据真相以代码为准**（OpenAPI / ORM），不手写逐字段 / 逐接口 schema。
+- 具体产品、页面、架构和验收标准写入 `docs/superpowers/specs/`（脚手架，经确认后消费，完成并确认后改为 `Archived` 再归档）；实施计划写入 `docs/superpowers/plans/`，完成并确认后归档到 `docs/superpowers/plans/archive/`。**接口与数据真相以代码为准**（OpenAPI / ORM），不手写逐字段 / 逐接口 schema。
 - 领域调研、竞品、数据来源、数据链路、用户闭环、证据和待确认假设写入 `docs/research/`；确认后的长期事实再回写到对应 spec。
 - `AI-BOOTSTRAP.md` 用于判断"现在该做什么"，不是替代 `prompt.md`。
 - `.template/prompt.md` 用于驱动阶段产出，不保存项目事实。
@@ -146,6 +164,7 @@ docs/prompt.md 必须根据目标项目自身已有 prompt、CLAUDE.md / AGENTS.
 - `docs/decision.md` 用于记录产品、技术、实现和验证中的重要取舍。
 - `docs/progress.md` 用于记录当前阶段、已完成、进行中、未完成、阻塞、验证和下一步。
 - `.template/scripts/validate-template.sh` 用于检查模板体系本身是否完整。
+- `.template/scripts/test-validate-template.sh` 用于验证校验器能拦住 workflow 断环、错误归档路径和非法状态。
 
 ## 规格模板顺序
 
@@ -158,7 +177,7 @@ docs/prompt.md 必须根据目标项目自身已有 prompt、CLAUDE.md / AGENTS.
 
 研究 / 数据发现：
 
-- `05-domain-research.md` -> `docs/research/05-domain-research.md`
+- `05-domain-research.md` -> `docs/superpowers/specs/05-domain-research.md`
 
 按需使用：
 
@@ -167,19 +186,19 @@ docs/prompt.md 必须根据目标项目自身已有 prompt、CLAUDE.md / AGENTS.
 - `30-data-design.md`
 - `40-api-and-pages.md`
 - `50-implementation-constraints.md`
-- `90-implementation-plan.md`
+- `90-implementation-plan.md`（模板）→ `docs/superpowers/plans/90-implementation-plan.md`（项目实际）
 
 是否"按需"由项目复杂度决定，不由 AI 为了加快实现自行跳过。凡涉及数据库、外部服务、权限、支付、额度、异步任务、复杂前后端接口、多角色流程或生产数据链路，进入 UX / Architecture 前必须先完成或明确跳过 `05-domain-research.md`，进入实施计划前必须至少补齐 `20/30/40/50` 中对应的设计规格。
 
 ## 注意事项
 
 - 不要让 AI 直接从 idea 跳到实现。
-- 不要让 AI 在没有 `docs/research/05-domain-research.md` 或明确跳过理由的情况下直接进入 Architecture / System Design。
+- 不要让 AI 在没有 `docs/superpowers/specs/05-domain-research.md` 或明确跳过理由的情况下直接进入 Architecture / System Design。
 - 不要用 mock / 静态数据作为最终 E2E 通过依据。
 - 不要把项目专属的大段业务规则写回模板入口文件。
 - 不要把目标项目事实写入 `.template/prompt.md`；项目化 prompt 写入 `docs/prompt.md`。
 - 模板复制到项目后，应把 `[变量]` 替换成真实项目内容。
 - 已有项目可以让 AI 从代码和配置中提取信息反填模板，不必全部手动填写。
 - 增量迭代先写 Delta Spec；如果变化影响长期事实（页面、接口、数据模型、验收标准、技术约束），必须同步回写对应全量 spec。
-- 每个 spec 必须维护规格状态：`Draft / AI Extracted / Human Confirmed / Frozen / Deprecated`。
+- 每个 spec 和 plan 必须维护规格状态：`Draft / AI Extracted / Human Confirmed / Frozen / Deprecated / Archived`。`Human Confirmed` 只表示可被后续阶段消费，不等于可以立即归档；归档前必须先把文件内状态改为 `Archived`，再移动到对应 archive。workflow 状态由 `docs/workflow.yaml` 维护：`pending / drafting / review / ready / consumed / verified / archived / skipped`。按需阶段如 UX / Prototype 不适用，必须标记为 `skipped` 并写明原因，不能让后续阶段静默绕过。
 - 阶段切换、长任务中断、E2E 验收和交付前后必须更新 `docs/progress.md`。

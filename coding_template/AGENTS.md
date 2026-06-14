@@ -6,7 +6,7 @@
 
 ## 1. 项目定位
 
-> 详细 Idea 分析（目标用户拆分、痛点论证、竞品对标、MVP 范围、成功标准）见 `docs/specs/00-idea-brief.md`。领域调研、竞品、数据来源、数据链路、用户闭环和证据见 `docs/research/05-domain-research.md`。
+> 详细 Idea 分析（目标用户拆分、痛点论证、竞品对标、MVP 范围、成功标准）见 `docs/superpowers/specs/00-idea-brief.md`。领域研究 spec 见 `docs/superpowers/specs/05-domain-research.md`，原始证据和专项材料见 `docs/research/`。
 
 [产品名称] 是 [一句话描述产品边界]。
 
@@ -73,6 +73,23 @@ Mock / Contract 参考：[mock 文件路径]
 ## 4. 开发流程（强制 Superpowers 工作流）
 
 默认项目已安装 Superpowers 插件。开发、调试、规划、验证、Git 和代码审查相关任务必须优先使用对应 skill，不得绕过 Superpowers 工作流直接实现。
+
+### Superpowers 与主线 prompt 的边界
+
+- `.template/prompt.md`、`docs/prompt.md` 和 `docs/workflow.yaml` 决定产品工程主线、当前阶段、依赖和下一步。
+- Superpowers 决定每个阶段怎么执行：构思/规格用 brainstorming，实施计划用 writing-plans，开发按计划使用 TDD、review 和 verification 相关 skill。
+- 本项目遵循 Superpowers 的默认文档根路径：阶段 spec 写入 `docs/superpowers/specs/`，implementation plan 写入 `docs/superpowers/plans/`。
+- 人类 review 是阶段 gate：spec 从 `review` 到 `ready`、实施计划从 `review` 到 `ready`、验证完成后从 `verified` 到 `archived` 必须经人类确认。
+- `Human Confirmed` 只表示 spec 或 plan 可被后续阶段消费，不表示可以立即归档。完成并经人类确认后，必须先把文件内状态改为 `Archived`，再移动到对应 archive。
+- 按需阶段不能静默绕过；如 UX / Prototype 不适用，必须在 `docs/workflow.yaml` 标记为 `skipped`，并在 `docs/prompt.md` 执行台账和 `docs/progress.md` 写明原因。
+
+### Superpowers 产物归档
+
+- Superpowers 产出的阶段 spec 写入 `docs/superpowers/specs/`，完成后归档到 `docs/superpowers/specs/archive/`。
+- Superpowers 产出的 implementation plan 写入 `docs/superpowers/plans/`，完成后归档到 `docs/superpowers/plans/archive/`；即使内容来自 `.template/specs/90-implementation-plan.md`，项目实际计划也归入 `docs/superpowers/plans/`。
+- 归档前必须更新文件内的规格状态：`Human Confirmed` 表示可执行，`Archived` 表示该 spec 或 plan 已完成并移出活跃上下文。
+- 移动到 archive 后，必须同步更新 `docs/workflow.yaml`、`docs/progress.md` 和 `docs/prompt.md` 的执行台账。
+- 归档不是删除事实：接口、数据、行为以代码为准；决策写入 `docs/decision.md`；当前状态写入 `docs/progress.md`。
 
 ### TDD 灵活度
 
@@ -155,13 +172,13 @@ Mock / Contract 参考：[mock 文件路径]
 
 ## 6. 规格模板索引
 
-详细规格不写在本入口文件中。模板原件位于 `.template/specs/`，项目实际规格写入 `docs/specs/`，研究证据和数据发现写入 `docs/research/`。
+详细规格不写在本入口文件中。模板原件位于 `.template/specs/`，项目实际规格写入 `docs/superpowers/specs/`，项目实际计划写入 `docs/superpowers/plans/`，研究证据和数据发现写入 `docs/research/`。
 
-`.template/specs/` 只保存模板原件，不写项目事实；`docs/specs/` 保存项目实际规格（思考脚手架，用完归档）；现状（接口 / 数据）以代码为准。`docs/research/` 保存领域调研、竞品、数据来源、数据链路、用户闭环、证据和待确认假设；主产物为 `docs/research/05-domain-research.md`。默认建议 `.template/` 随项目入库；如果团队选择不入库，必须在 `docs/decision.md` 记录模板源路径和重新安装方式。
+`.template/specs/` 只保存模板原件，不写项目事实；`docs/superpowers/specs/` 保存项目实际规格（思考脚手架，经人类确认后供后续阶段消费，完成并确认后改为 `Archived` 再移动到 `docs/superpowers/specs/archive/`）；`docs/superpowers/plans/` 保存项目实际实施计划，完成并确认后归档到 `docs/superpowers/plans/archive/`；现状（接口 / 数据）以代码为准。`docs/research/` 保存领域调研、竞品、数据来源、数据链路、用户闭环、证据和待确认假设；Domain Research spec 主产物为 `docs/superpowers/specs/05-domain-research.md`。默认建议 `.template/` 随项目入库；如果团队选择不入库，必须在 `docs/decision.md` 记录模板源路径和重新安装方式。
 
-`.template/prompt.md` 是阶段 prompt 模板原件，不写项目事实；`docs/prompt.md` 是目标项目运行态 prompt，必须根据目标项目自身已有 prompt、`CLAUDE.md` / `AGENTS.md`、`docs/progress.md` 和当前阶段相关规格生成或更新。阶段切换后必须更新 `docs/prompt.md` 的当前推荐 prompt。
+`.template/prompt.md` 是阶段 prompt 模板原件，不写项目事实；`docs/prompt.md` 是目标项目运行态 prompt，必须根据目标项目自身已有 prompt、`CLAUDE.md` / `AGENTS.md`、`docs/progress.md`、`docs/workflow.yaml`、当前阶段相关 `docs/superpowers/specs/`、`docs/superpowers/plans/` 和 `docs/research/` 生成或更新。阶段切换后必须更新 `docs/prompt.md` 的当前推荐 prompt。
 
-`docs/decision.md` 记录长期决策；`docs/progress.md` 记录当前阶段、任务状态、验证结果和下一步。研究发现如果影响长期事实，必须从 `docs/research/` 回写到对应 `docs/specs/`、decision 或 progress。阶段切换、长任务中断、E2E 验收和交付前后必须更新 `docs/progress.md`。
+`docs/decision.md` 记录长期决策；`docs/progress.md` 记录当前阶段、任务状态、验证结果和下一步。研究发现如果影响长期事实，必须从 `docs/research/` 回写到对应 `docs/superpowers/specs/`、decision 或 progress。阶段切换、长任务中断、E2E 验收和交付前后必须更新 `docs/progress.md`；主流程状态必须更新 `docs/workflow.yaml`。
 
 AI 首次接手项目时，优先阅读：`.template/AI-BOOTSTRAP.md`，用于判断项目阶段、检查文档缺口并向人类推荐下一步 prompt。
 
@@ -169,14 +186,14 @@ AI 首次接手项目时，优先阅读：`.template/AI-BOOTSTRAP.md`，用于�
 
 任何产品都需要回答这 4 类问题：
 
-1. Idea Brief：`.template/specs/00-idea-brief.md`（模板）/ `docs/specs/00-idea-brief.md`（项目实际）
-2. Product Spec：`.template/specs/01-product-spec.md`（模板）/ `docs/specs/01-product-spec.md`（项目实际）
-3. E2E Acceptance Spec：`.template/specs/02-e2e-acceptance.md`（模板）/ `docs/specs/02-e2e-acceptance.md`（项目实际）
-4. Delivery Report：`.template/specs/03-delivery-report.md`（模板）/ `docs/specs/03-delivery-report.md`（项目实际）
+1. Idea Brief：`.template/specs/00-idea-brief.md`（模板）/ `docs/superpowers/specs/00-idea-brief.md`（项目实际）
+2. Product Spec：`.template/specs/01-product-spec.md`（模板）/ `docs/superpowers/specs/01-product-spec.md`（项目实际）
+3. E2E Acceptance Spec：`.template/specs/02-e2e-acceptance.md`（模板）/ `docs/superpowers/specs/02-e2e-acceptance.md`（项目实际）
+4. Delivery Report：`.template/specs/03-delivery-report.md`（模板）/ `docs/superpowers/specs/03-delivery-report.md`（项目实际）
 
 ### 研究 / 数据发现
 
-- Domain Research / Data Discovery：`.template/specs/05-domain-research.md`（模板）/ `docs/research/05-domain-research.md`（项目实际）
+- Domain Research / Data Discovery：`.template/specs/05-domain-research.md`（模板）/ `docs/superpowers/specs/05-domain-research.md`（项目实际）；支撑证据写入 `docs/research/`
 
 ### 按需使用
 
@@ -185,19 +202,19 @@ AI 首次接手项目时，优先阅读：`.template/AI-BOOTSTRAP.md`，用于�
 - 数据模型 / 数据链路：`.template/specs/30-data-design.md`
 - API 契约 / 页面接口映射：`.template/specs/40-api-and-pages.md`
 - 前后端实现约束：`.template/specs/50-implementation-constraints.md`
-- 分阶段实施计划：`.template/specs/90-implementation-plan.md`
+- 分阶段实施计划：`.template/specs/90-implementation-plan.md`（模板）/ `docs/superpowers/plans/90-implementation-plan.md`（项目实际）
 
 `05-domain-research.md` 用于在 UX / Architecture 前沉淀竞品、数据来源、数据模型映射、数据流闭环、用户使用闭环和待确认假设。`20/30/40/50` 虽为按需规格，但涉及数据库、外部服务、权限、支付、额度、异步任务、复杂前后端接口、多角色流程或生产数据链路时，进入实施计划前必须补齐对应设计规格。
 
 ### 使用规则
 
 - 入口文件只保留全局约束和文档索引。
-- 具体页面、接口、数据、架构、前后端规范按需写入 `docs/specs/` 下对应 spec 文件。
+- 具体页面、接口、数据、架构、前后端规范按需写入 `docs/superpowers/specs/` 下对应 spec 文件。
 - 竞品、领域术语、数据来源、数据链路、用户闭环、证据和待确认假设写入 `docs/research/`；确认后的长期事实必须同步回写对应 spec。
 - 具体可执行的下一步 prompt 写入 `docs/prompt.md`；长期事实不得只写在 `docs/prompt.md`，必须同步回写对应 spec、decision 或 progress。
 - 如果某个规格填充后超过 20 行，保留在独立 spec 文件中，不要内联回本文件。
 - 实现前**必须**读取当前任务直接相关的 spec 文件。
-- 每个 spec 必须维护规格状态：`Draft / AI Extracted / Human Confirmed / Frozen / Deprecated`。AI 从代码或文档反填的内容只能标记为 `AI Extracted`，不能冒充人类确认。
+- 每个 spec 和 plan 必须维护规格状态：`Draft / AI Extracted / Human Confirmed / Frozen / Deprecated / Archived`。AI 从代码或文档反填的内容只能标记为 `AI Extracted`，不能冒充人类确认。归档前必须先把文件内状态改为 `Archived`，再移动到对应 archive。`docs/workflow.yaml` 另行维护 workflow 状态：`pending / drafting / review / ready / consumed / verified / archived / skipped`。
 - 如果存在 `.template/scripts/validate-template.sh`，模板安装、模板修改或交付前应运行 `.template/scripts/validate-template.sh .template`。
 
 ## 7. 文档治理
@@ -205,7 +222,7 @@ AI 首次接手项目时，优先阅读：`.template/AI-BOOTSTRAP.md`，用于�
 > 详见 `.template/reference/documentation-governance.md`。核心:
 
 - **信息只活在一处**:现状(接口 / 数据 / 行为)→ **代码即真相**(OpenAPI / ORM+迁移 / 测试),不手写;决策(为什么)→ `docs/decision.md`(append-only 封存);状态(现在到哪)→ `docs/progress.md`(轻量维护);导航 / 约束 → `README` + 本文件(指向上面的源)。
-- **specs 是思考脚手架**:用完归档 / 删除,不长期维护;现状不抄进 spec。
+- **specs / plans 是思考脚手架**:确认、消费、验证完成后先改状态为 `Archived`，再移动到各自 archive,不长期维护;现状不抄进 spec 或 plan。
 - **长期只维护** `README` + `docs/decision.md` + `docs/progress.md`(+ 本文件)。其余要么是代码,要么是用完即弃的脚手架。
 
 判定一份文档去留:删掉它谁会受影响?它描述会变的现状、还是不变的决策?谁在何时需要它?

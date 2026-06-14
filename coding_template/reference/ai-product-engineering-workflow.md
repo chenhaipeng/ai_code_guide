@@ -27,7 +27,7 @@ Idea 压缩
 → 验证交付
 ```
 
-实际执行顺序以 `.template/AI-BOOTSTRAP.md` 的阶段表为准。本文件是方法论参考，不覆盖项目中的 `AGENTS.md` / `CLAUDE.md`、`docs/specs/` 或 `.template/prompt.md`。
+实际执行顺序以 `.template/AI-BOOTSTRAP.md` 的阶段表为准。本文件是方法论参考，不覆盖项目中的 `AGENTS.md` / `CLAUDE.md`、`docs/superpowers/specs/` 或 `.template/prompt.md`。
 
 核心原则：**前重后轻**。上游投入越充分（原型、规格、约束），下游 AI 执行越精准、越少返工。
 

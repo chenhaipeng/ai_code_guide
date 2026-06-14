@@ -8,7 +8,15 @@
 >   - 现状（接口 / 数据 / 行为）→ 写进代码（OpenAPI / ORM / 测试），spec 不手写这些
 >   - 决策（为什么这么选）→ 追加到 `docs/decision.md`
 >   - 状态（到哪了）→ 更新 `docs/progress.md`
->   - spec 本体 → 思考脚手架，用完归档（见 `reference/documentation-governance.md`）
+>   - spec / plan 本体 → 思考脚手架，完成并确认后先改状态为 `Archived`，再移动到各自 archive（见 `reference/documentation-governance.md`）
+
+---
+
+## 通用状态转移规则
+
+执行任何阶段 prompt 前，先读取 `docs/workflow.yaml.current`，确认当前 item、`artifact_path`、`archive_path` 和依赖状态。开始产出时确保对应 item 为 `drafting`；产出并自检后改为 `review`，请求人类确认；人类确认后改为 `ready`，文件内容状态可标记为 `Human Confirmed`；被后续阶段或实现使用后改为 `consumed`；对应验证通过后改为 `verified`；归档前先把文件内容状态改为 `Archived`，再移动到 `archive_path`，并把 workflow 状态改为 `archived`。
+
+如果阶段 prompt 的诊断和 `docs/workflow.yaml.current` 不一致，不能自行选择另一阶段执行；必须报告差异，等待人类确认后再更新 `docs/workflow.yaml`、`docs/progress.md` 和 `docs/prompt.md`。
 
 ---
 
@@ -63,7 +71,7 @@ Idea Brief：[路径]
 Product Spec：[路径]
 已有研究 / 数据来源 / 竞品材料：[路径或无]
 
-请按 `.template/specs/05-domain-research.md` 生成 Domain Research / Data Discovery，并将目标项目产物写入 `docs/research/05-domain-research.md`。
+请按 `.template/specs/05-domain-research.md` 生成 Domain Research / Data Discovery，并将目标项目产物写入 `docs/superpowers/specs/05-domain-research.md`。
 
 要求：
 1. 建立 `docs/research/` 分类目录：competitors、data-sources、data-lineage、user-flows、evidence，并维护 `assumptions.md`
@@ -82,7 +90,7 @@ Product Spec：[路径]
 ## 阶段 4：UX / Prototype（按需）
 
 ```text
-如果产品涉及 C 端体验、复杂页面、视觉设计或原型，请执行本阶段；否则跳过。
+如果产品涉及 C 端体验、复杂页面、视觉设计或原型，请执行本阶段；否则必须在 `docs/workflow.yaml` 将 `10-ux-prototype` 标记为 `skipped`，并在 `docs/prompt.md` 执行台账和 `docs/progress.md` 写明跳过原因。
 
 Product Spec：[路径]
 Domain Research / Data Discovery：[路径]
@@ -107,8 +115,8 @@ Domain Research / Data Discovery：[路径]
 ```text
 Idea Brief：[路径]
 Product Spec：[路径]
-Domain Research / Data Discovery：`docs/research/05-domain-research.md`
-UX / Prototype：[路径或无]
+Domain Research / Data Discovery：`docs/superpowers/specs/05-domain-research.md`
+UX / Prototype：[路径；如跳过，必须引用 `docs/workflow.yaml` 的 `10-ux-prototype: skipped` 和跳过原因]
 AGENTS.md / CLAUDE.md：[路径]
 
 请先读取 Domain Research / Data Discovery 的研究结论和待确认假设，再生成系统设计。
@@ -140,7 +148,7 @@ AGENTS.md / CLAUDE.md：[路径]
 
 ```text
 Product Spec：[路径]
-Domain Research / Data Discovery：`docs/research/05-domain-research.md`
+Domain Research / Data Discovery：`docs/superpowers/specs/05-domain-research.md`
 Architecture / API / Data Specs：[路径]
 
 请按 `.template/specs/02-e2e-acceptance.md` 生成开发前 E2E 验收规范。
@@ -167,14 +175,14 @@ Architecture / API / Data Specs：[路径]
 - E2E Acceptance：[路径]
 - 相关 Domain Research / Architecture / Data / API / UX specs：[路径]
 
-请按 `.template/specs/90-implementation-plan.md` 生成实施计划。
+请按 `.template/specs/90-implementation-plan.md` 生成实施计划，并写入 `docs/superpowers/plans/90-implementation-plan.md`。
 
 要求：
 1. 每个 Phase 是独立可验证的交付单元
 2. 每个 Phase 包含目标、输入、输出、依赖、修改范围、禁止事项、验收命令、E2E 路径、失败处理、回滚方式
 3. 修改范围必须明确到文件或目录
 4. 验收命令必须可复制执行
-5. 写入规格状态；计划经人类确认后才能标记为 `Human Confirmed`
+5. 写入规格状态；计划经人类确认后才能标记为 `Human Confirmed`；完成并确认后必须先改为 `Archived`，再移动到 `docs/superpowers/plans/archive/`
 
 验证：Phase 依赖不能断裂；没有验证命令或 E2E 路径的 Phase 不通过。
 ```
@@ -331,7 +339,7 @@ Architecture / API / Data Specs：[路径]
 
 要求：
 1. 严格遵守 CLAUDE.md / AGENTS.md 中的所有约束，不得绕过验证流程。
-2. 按 docs/specs/ 已有规格和 docs/research/ 已确认研究结论实现；规格不足的部分先记录假设和决策，不能用未验证的竞品想象替代事实。
+2. 按 docs/superpowers/specs/ 已有规格和 docs/research/ 已确认研究结论实现；规格不足的部分先记录假设和决策，不能用未验证的竞品想象替代事实。
 3. 遇到决策时，默认按推荐方案或最优实践执行，但必须记录到 docs/decision.md：
    - 决策问题、备选方案、选择、理由、影响范围、相关文件。
 4. 每完成一个 Phase 或关键改动，立即验证（构建 + 测试 + E2E），不攒积压。
@@ -341,7 +349,7 @@ Architecture / API / Data Specs：[路径]
 上下文读取顺序：
 1. CLAUDE.md 或 AGENTS.md
 2. docs/progress.md（判断当前进度和中断点）
-3. 当前 Phase 相关的 docs/specs/ 文件和 docs/research/ 研究结论
+3. 当前 Phase 相关的 docs/superpowers/specs/ 文件和 docs/research/ 研究结论
 4. 如有原型，对照原型实现前端
 
 完成后输出：修改内容、验证结果、决策记录、未验证项、偏离规格情况。

@@ -2,11 +2,11 @@
 
 > 目的：定义数据模型、数据链路、快照和审计规则。
 >
-> **角色定位**：本 spec 是设计快照（脚手架），用完归档。**数据模型真相以 ORM 模型 + 迁移文件为准**（如 `models/` + `migrations/`）；本文件只记录设计意图与关键决策（不可变快照、账本规则、索引策略），**不逐表手写字段定义**——那会迅速过时。详见 `reference/documentation-governance.md`。
+> **角色定位**：本 spec 是设计快照（脚手架），完成并确认后先改状态为 `Archived`，再移动到 `docs/superpowers/specs/archive/`。**数据模型真相以 ORM 模型 + 迁移文件为准**（如 `models/` + `migrations/`）；本文件只记录设计意图与关键决策（不可变快照、账本规则、索引策略），**不逐表手写字段定义**——那会迅速过时。详见 `reference/documentation-governance.md`。
 
 ## 规格状态
 
-- 状态：[Draft / AI Extracted / Human Confirmed / Frozen / Deprecated]
+- 状态：[Draft / AI Extracted / Human Confirmed / Frozen / Deprecated / Archived]
 - 来源：[Human Input / AI Extracted from Code / AI Draft]
 - 最后更新：[YYYY-MM-DD]
 - 确认人：[姓名或角色]

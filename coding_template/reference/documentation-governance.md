@@ -21,11 +21,21 @@
 
 ## specs 的正确定位：脚手架，不是长期资产
 
-本模板 `specs/` 里的各阶段规格，**是"想清楚"的过程产物，不是需要长期维护的资产**。
+本模板里的 `specs/` 和 `plans/`，**是"想清楚"和"拆清楚"的过程产物，不是需要长期维护的资产**。
 
 - 写 spec 的真正价值在"写"这个动作——逼你把模糊想法、设计决策、验收标准想清楚。这个价值在创建时就兑现了。
-- 因此 specs 用完即**归档或删除**（git 历史保留），不要试图长期维护它们与代码一致——那是徒劳。
+- 因此 specs 和 plans 在**经人类确认、被后续阶段消费、对应实现/验收验证通过**后，先把文件内状态改为 `Archived`，再移动到各自 archive（git 历史保留），不要试图长期维护它们与代码一致——那是徒劳。
 - 特别是 `30-data-design`、`40-api-and-pages` 这类描述"现状"的 spec：现状的真相在代码（ORM / OpenAPI），手写必过时。
+
+## 主流程状态机
+
+`docs/workflow.yaml.current` 是当前 spec / plan item 的权威来源；阶段诊断表、`docs/progress.md` 和 `docs/prompt.md` 只能解释、展示或辅助纠偏，不能各自形成另一套当前阶段真相。
+
+workflow 状态维护过程生命周期：`pending / drafting / review / ready / consumed / verified / archived / skipped`。内容状态维护文件自身可信度：`Draft / AI Extracted / Human Confirmed / Frozen / Deprecated / Archived`。两套状态不能混用：`Human Confirmed` 表示内容经人类确认、可被消费；`archived` 表示该 item 的生命周期结束。
+
+人类 review 是强制 gate：`review → ready`、implementation plan `review → ready`、`verified → archived` 必须经人类确认。归档前必须先把文件内内容状态改为 `Archived`，再按 `docs/workflow.yaml` 的 `archive_path` 移动文件，并同步更新 `docs/workflow.yaml`、`docs/progress.md` 和 `docs/prompt.md` 执行台账。
+
+`docs/workflow.yaml` 跟踪 spec / plan 脚手架到 `90-implementation-plan` 为止。进入代码实现后，进度由 implementation plan 内 task、`docs/progress.md`、验证命令和 `docs/e2e/verify/` 报告跟踪；交付总结由 `03-delivery-report.md` 记录。
 
 ## 最小长期维护集
 
@@ -42,7 +52,7 @@
 1. **"现状"类一旦手写，就注定游离。** 接口/数据/行为文档，真相只能是代码或代码生成物（OpenAPI / ORM+迁移 / 测试）。
 2. **"决策"类写完即封存。** ADR 是 append-only 历史账本，不更新。
 3. **唯一需要手动维护的是导航状态，且必须轻。** 长了就不更新了（progress 验证表堆积就是信号）。
-4. **写文档的价值在"写"的动作，不在维护产物。** 早期 spec/设计有必要写，但用完归档。
+4. **写文档的价值在"写"的动作，不在维护产物。** 早期 spec/设计/计划有必要写，但不要在刚写完时归档；确认、消费、验证后先改状态为 `Archived`，再移动到对应 archive。
 5. **文档应被"生成"或"封存"，不应被"更新"。** 只有导航状态例外。
 
 ## 判定一份文档去留的三问
@@ -64,6 +74,6 @@
 
 1. 从模板建 `CLAUDE.md` / `AGENTS.md`（约束）、`decision.md`（空 ADR）、`progress.md`（状态）、`README.md`（导航）。
 2. 接口/数据从一开始就用代码当真相（如 FastAPI `/openapi.json` + SQLAlchemy + Alembic），**不要**先写手写接口/数据 spec 再实现。
-3. 按模板 prompt 走阶段时，specs 是"想清楚"的工具，写完准备归档——别把它们列为"必须长期读取的规格"。
-4. 每完成一个阶段/任务，对应 spec 进 archive 或删除（git 历史是最终 archive）。
+3. 按模板 prompt 走阶段时，specs 是"想清楚"的工具，plans 是"拆清楚"的工具，确认后供后续阶段消费——别把它们列为"必须长期维护的规格"。
+4. 每完成一个阶段/任务，对应 spec 先改状态为 `Archived` 再进 `docs/superpowers/specs/archive/`；对应 plan 先改状态为 `Archived` 再进 `docs/superpowers/plans/archive/`（git 历史是最终 archive）。
 5. 每次纠结"这文档要不要更新"，回到上面的三问。

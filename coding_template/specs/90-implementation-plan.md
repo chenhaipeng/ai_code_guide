@@ -4,7 +4,7 @@
 
 ## 规格状态
 
-- 状态：[Draft / AI Extracted / Human Confirmed / Frozen / Deprecated]
+- 状态：[Draft / AI Extracted / Human Confirmed / Frozen / Deprecated / Archived]
 - 来源：[Human Input / AI Extracted from Code / AI Draft]
 - 最后更新：[YYYY-MM-DD]
 - 确认人：[姓名或角色]
