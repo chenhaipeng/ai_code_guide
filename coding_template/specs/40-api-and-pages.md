@@ -2,9 +2,9 @@
 
 > 目的：定义接口契约、页面接口映射和页面状态要求。
 >
-> **角色定位**：本 spec 是设计快照（脚手架），完成并确认后先改状态为 `Archived`，再移动到 `docs/superpowers/specs/archive/`。**接口契约真相以 OpenAPI 为准**（如 FastAPI `/openapi.json`，由代码生成）；本文件只记录页面-接口映射和关键契约决策（鉴权、幂等、SSE、错误码），**不逐接口手写请求/响应 schema**——那会迅速过时。详见 `reference/documentation-governance.md`。
+> **角色定位**：本 spec 是设计快照（脚手架），完成并确认后先改内容状态为 `Archived`，再移动到 `docs/superpowers/specs/archive/`。**接口契约真相以 OpenAPI 为准**（如 FastAPI `/openapi.json`，由代码生成）；本文件只记录页面-接口映射和关键契约决策（鉴权、幂等、SSE、错误码），**不逐接口手写请求/响应 schema**——那会迅速过时。详见 `reference/documentation-governance.md`。
 
-## 规格状态
+## 内容状态
 
 - 状态：[Draft / AI Extracted / Human Confirmed / Frozen / Deprecated / Archived]
 - 来源：[Human Input / AI Extracted from Code / AI Draft]

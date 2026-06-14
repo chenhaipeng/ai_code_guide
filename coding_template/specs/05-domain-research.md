@@ -2,7 +2,7 @@
 
 > 目的：在 UX、架构、数据设计和 API 设计之前，沉淀领域调研、竞品对比、数据来源、数据链路、用户闭环和关键假设。目标项目 spec 写入 `docs/superpowers/specs/05-domain-research.md`，原始证据和专项材料按需写入 `docs/research/` 下的分类目录。
 
-## 规格状态
+## 内容状态
 
 - 状态：[Draft / AI Extracted / Human Confirmed / Frozen / Deprecated / Archived]
 - 来源：[Human Input / AI Extracted from Code / AI Draft / External Research]

@@ -3,18 +3,20 @@
 > 目的：驱动 AI 从 idea 到交付产品。具体内容写入 `.template/specs/` 对应模板，避免把所有细节塞进 prompt。
 >
 > 原则：
-> - 只读取当前阶段相关文档；做完立刻验证；不验证不进入下一阶段。
+> - 只读取当前 workflow item / 执行层相关文档；做完立刻验证；不验证不进入下一步。
 > - **产出归位**：每阶段产出的信息归到它的天然源头，而不是堆进 spec——
 >   - 现状（接口 / 数据 / 行为）→ 写进代码（OpenAPI / ORM / 测试），spec 不手写这些
 >   - 决策（为什么这么选）→ 追加到 `docs/decision.md`
 >   - 状态（到哪了）→ 更新 `docs/progress.md`
->   - spec / plan 本体 → 思考脚手架，完成并确认后先改状态为 `Archived`，再移动到各自 archive（见 `reference/documentation-governance.md`）
+>   - spec / plan 本体 → 思考脚手架，完成并确认后先改内容状态为 `Archived`，再移动到各自 archive（见 `reference/documentation-governance.md`）
 
 ---
 
 ## 通用状态转移规则
 
-执行任何阶段 prompt 前，先读取 `docs/workflow.yaml.current`，确认当前 item、`artifact_path`、`archive_path` 和依赖状态。开始产出时确保对应 item 为 `drafting`；产出并自检后改为 `review`，请求人类确认；人类确认后改为 `ready`，文件内容状态可标记为 `Human Confirmed`；被后续阶段或实现使用后改为 `consumed`；对应验证通过后改为 `verified`；归档前先把文件内容状态改为 `Archived`，再移动到 `archive_path`，并把 workflow 状态改为 `archived`。
+执行 spec / plan 阶段 prompt（阶段 1-7）前，先读取 `docs/workflow.yaml.current`，确认当前 item、`artifact_path`、`archive_path` 和依赖状态。开始产出时确保对应 item 为 `drafting`；产出并自检后改为 `review`，请求人类确认；人类确认后改为 `ready`，文件内容状态可标记为 `Human Confirmed`；被后续阶段或实现使用后改为 `consumed`；对应验证通过后改为 `verified`；归档前先把文件内容状态改为 `Archived`，再移动到 `archive_path`，并把 workflow 状态改为 `archived`。
+
+阶段 8-11 属于执行层，不创建默认 workflow item；按 `90-implementation-plan` 内 task、`docs/progress.md`、`docs/e2e/verify/` 和 `docs/superpowers/specs/03-delivery-report.md` 跟踪。`03-delivery-report` 是一次性交付总结，不进入 workflow，完成并确认后按 spec 归档到 `docs/superpowers/specs/archive/`。
 
 如果阶段 prompt 的诊断和 `docs/workflow.yaml.current` 不一致，不能自行选择另一阶段执行；必须报告差异，等待人类确认后再更新 `docs/workflow.yaml`、`docs/progress.md` 和 `docs/prompt.md`。
 
@@ -38,7 +40,7 @@
 3. 列出 MVP 必做和明确不做
 4. 列出 3-5 个对标产品
 5. 给出可验证成功标准
-6. 写入规格状态：初稿为 `Draft`，从已有代码/文档提取为 `AI Extracted`，人类确认后才能标记为 `Human Confirmed`
+6. 写入内容状态：初稿为 `Draft`，从已有代码/文档提取为 `AI Extracted`，人类确认后才能标记为 `Human Confirmed`
 
 验证：如果边界不清、MVP 超过 5 个核心能力、没有明确不做项，则不进入下一阶段。
 ```
@@ -57,7 +59,7 @@ Idea Brief：[路径]
 2. 列出 MVP 页面和非 MVP 页面
 3. 每个页面必须包含：目的、操作、字段、字段来源、依赖接口、输入校验、关键业务规则、加载/空/错误/权限状态、权限矩阵、验收标准
 4. 明确非功能要求：性能、安全、可用性、可观测性
-5. 写入规格状态：初稿为 `Draft`，从已有代码/文档提取为 `AI Extracted`，人类确认后才能标记为 `Human Confirmed`
+5. 写入内容状态：初稿为 `Draft`，从已有代码/文档提取为 `AI Extracted`，人类确认后才能标记为 `Human Confirmed`
 
 验证：每个页面必须有状态定义、字段来源、权限矩阵和验收标准；没有空状态/错误状态或无法追踪到数据来源的页面不通过。
 ```
@@ -80,7 +82,7 @@ Product Spec：[路径]
 4. 每个核心数据来源必须说明：来源、获取方式、授权、可信度、更新频率、失败模式和证据
 5. 每个关键结论必须有稳定 ID：COMP / TERM / SRC / MAP / FLOW / LOOP / RISK / ASM，供后续 specs 引用
 6. 明确哪些长期事实需要回写到 Product Spec、Data Design、API 或 E2E；研究证据保留在 `docs/research/`
-7. 写入规格状态；外部调研或 AI 推断内容不能标记为 `Human Confirmed`
+7. 写入内容状态；外部调研或 AI 推断内容不能标记为 `Human Confirmed`
 
 验证：如果核心字段无法追溯到数据来源或待确认假设、没有用户闭环、没有数据流闭环、P0 数据风险未关闭，则不进入 UX / Prototype 或 Architecture / System Design。
 ```
@@ -103,7 +105,7 @@ Domain Research / Data Discovery：[路径]
 3. 原型中的示例数据、页面结构和用户闭环必须来自 Product Spec 和 Domain Research，不得随意编造
 4. 原型可包含示例数据，但必须标注不能作为生产验收数据
 5. 明确原型复用边界：可复用结构/交互/文案，不复用假数据
-6. 写入规格状态，冻结原型后标记为 `Frozen`
+6. 写入内容状态，冻结原型后标记为 `Frozen`
 
 验证：用浏览器打开原型，逐页检查导航、表单、按钮、空状态、错误状态和响应式表现。
 ```
@@ -137,7 +139,7 @@ AGENTS.md / CLAUDE.md：[路径]
 - 实现约束：`.template/specs/50-implementation-constraints.md`
 
 凡涉及数据库、外部服务、权限、支付、额度、异步任务、复杂前后端接口、多角色流程或生产数据链路，不得跳过对应设计规格。
-生成的设计规格必须写入规格状态；从现有代码反填的内容标记为 `AI Extracted`。
+生成的设计规格必须写入内容状态；从现有代码反填的内容标记为 `AI Extracted`。
 
 验证：产品规格里的字段、页面、操作，都必须能在架构、数据、API 或实现约束中找到来源。
 ```
@@ -159,7 +161,7 @@ Architecture / API / Data Specs：[路径]
 3. 覆盖正常路径、空状态、错误状态、权限不足、数据链路追踪
 4. 指定验收报告目录：`docs/e2e/verify/`
 5. 复杂项目必须一份 spec 对应一份 verify 报告；总体验收另写 overall verify 报告
-6. 写入规格状态；验收标准经人类确认后才能标记为 `Human Confirmed`
+6. 写入内容状态；验收标准经人类确认后才能标记为 `Human Confirmed`
 
 验证：没有 E2E 验收规范，不进入实施计划。
 ```
@@ -182,7 +184,7 @@ Architecture / API / Data Specs：[路径]
 2. 每个 Phase 包含目标、输入、输出、依赖、修改范围、禁止事项、验收命令、E2E 路径、失败处理、回滚方式
 3. 修改范围必须明确到文件或目录
 4. 验收命令必须可复制执行
-5. 写入规格状态；计划经人类确认后才能标记为 `Human Confirmed`；完成并确认后必须先改为 `Archived`，再移动到 `docs/superpowers/plans/archive/`
+5. 写入内容状态；计划经人类确认后才能标记为 `Human Confirmed`；完成并确认后必须先把内容状态改为 `Archived`，再移动到 `docs/superpowers/plans/archive/`
 
 验证：Phase 依赖不能断裂；没有验证命令或 E2E 路径的 Phase 不通过。
 ```
@@ -329,7 +331,7 @@ Architecture / API / Data Specs：[路径]
 问题：[内容]
 
 请读取相关文件后从中断点继续，不要重复已完成工作。
-优先读取 `docs/progress.md` 判断当前阶段、已完成、进行中、未完成、阻塞和下一步。
+优先读取 `docs/workflow.yaml.current` 判断当前 spec / plan item，读取 `docs/progress.md` 判断已完成、进行中、未完成、阻塞和下一步。
 ```
 
 ### 全量实现（ultracode 模式）

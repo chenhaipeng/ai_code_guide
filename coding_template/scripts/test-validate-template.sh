@@ -59,6 +59,18 @@ expect_fail() {
     missing-prompt-transition-rule)
       perl -0pi -e 's/^## 通用状态转移规则\n.*?(?=\n---\n)//ms' "$case_root/prompt.md"
       ;;
+    missing-runtime-ledger-split)
+      perl -0pi -e 's/^> Prompt 状态枚举：.*\n//m' "$case_root/templates/runtime-prompt.md"
+      ;;
+    missing-progress-workflow-current)
+      perl -0pi -e 's/^.*docs\/workflow\.yaml\.current.*\n//mg' "$case_root/templates/progress.md"
+      ;;
+    missing-delivery-outside-workflow)
+      perl -0pi -e 's/^.*03-delivery-report.*不进入.*workflow.*\n//mg' "$case_root/AI-BOOTSTRAP.md"
+      ;;
+    missing-workflow-self-check)
+      perl -0pi -e 's/^\| `docs\/workflow\.yaml` .*?\n//m' "$case_root/AI-BOOTSTRAP.md"
+      ;;
     *)
       echo "Unknown test case: $name"
       return 1
@@ -88,5 +100,9 @@ expect_fail missing-bootstrap-workflow-authority "MISSING text in AI-BOOTSTRAP.m
 expect_fail missing-bootstrap-post-plan-layering "MISSING text in AI-BOOTSTRAP.md: 90-implementation-plan"
 expect_fail missing-governance-state-machine "MISSING text in reference/documentation-governance.md: ## 主流程状态机"
 expect_fail missing-prompt-transition-rule "MISSING text in prompt.md: ## 通用状态转移规则"
+expect_fail missing-runtime-ledger-split "MISSING text in templates/runtime-prompt.md: Prompt 状态枚举"
+expect_fail missing-progress-workflow-current "MISSING text in templates/progress.md: docs/workflow.yaml.current"
+expect_fail missing-delivery-outside-workflow "MISSING text in AI-BOOTSTRAP.md: 03-delivery-report"
+expect_fail missing-workflow-self-check "MISSING text in AI-BOOTSTRAP.md: | \`docs/workflow.yaml\`"
 
 echo "Validator negative tests passed"

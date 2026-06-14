@@ -272,8 +272,12 @@ if command -v grep >/dev/null 2>&1; then
 
   for spec_path in "$root"/specs/*.md; do
     [[ -f "$spec_path" ]] || continue
-    if ! grep -q "规格状态" "$spec_path"; then
-      echo "MISSING spec status: ${spec_path#$root/}"
+    if ! grep -q "内容状态" "$spec_path"; then
+      echo "MISSING spec content status: ${spec_path#$root/}"
+      failures=$((failures + 1))
+    fi
+    if grep -q "## 规格状态" "$spec_path"; then
+      echo "INVALID old spec status heading: ${spec_path#$root/}"
       failures=$((failures + 1))
     fi
   done
@@ -282,8 +286,11 @@ if command -v grep >/dev/null 2>&1; then
   require_text "AI-BOOTSTRAP.md" "docs/prompt.md"
   require_text "AI-BOOTSTRAP.md" "docs/workflow.yaml"
   require_text "AI-BOOTSTRAP.md" 'docs/workflow.yaml.current` 为权威当前 item'
-  require_text "AI-BOOTSTRAP.md" '当前阶段以 `docs/workflow.yaml.current` 为权威'
+  require_text "AI-BOOTSTRAP.md" '当前 spec / plan item 以 `docs/workflow.yaml.current` 为权威'
   require_text "AI-BOOTSTRAP.md" '90-implementation-plan` 为止；进入代码实现后'
+  require_text "AI-BOOTSTRAP.md" "03-delivery-report"
+  require_text "AI-BOOTSTRAP.md" '03-delivery-report` 是一次性交付总结，不进入 workflow'
+  require_text "AI-BOOTSTRAP.md" "| \`docs/workflow.yaml\`"
   require_text "AI-BOOTSTRAP.md" "docs/superpowers/specs/"
   require_text "AI-BOOTSTRAP.md" "docs/superpowers/specs/archive/"
   require_text "AI-BOOTSTRAP.md" "docs/superpowers/plans/"
@@ -296,7 +303,7 @@ if command -v grep >/dev/null 2>&1; then
   require_text "AI-BOOTSTRAP.md" ".template/templates/"
   require_text "AI-BOOTSTRAP.md" ".template/scripts/"
   require_text "AI-BOOTSTRAP.md" "validate-template.sh"
-  require_text "AI-BOOTSTRAP.md" "规格状态"
+  require_text "AI-BOOTSTRAP.md" "内容状态"
   require_text "AI-BOOTSTRAP.md" "AI Extracted"
   require_text "AI-BOOTSTRAP.md" "Human Confirmed"
   require_text "AI-BOOTSTRAP.md" "默认随项目入库"
@@ -310,6 +317,11 @@ if command -v grep >/dev/null 2>&1; then
   require_text "README.md" "docs/research/"
   require_text "README.md" "docs/superpowers/specs/05-domain-research.md"
   require_text "README.md" "## 标准闭环流程"
+  require_text "README.md" "docs/workflow.yaml.current"
+  require_text "README.md" "workflow.yaml"
+  require_text "README.md" "内容状态"
+  require_text "README.md" "03-delivery-report"
+  require_text "README.md" "不进入 workflow"
   require_text "README.md" "10-ux-prototype"
   require_text "README.md" "20-architecture"
   require_text "README.md" ".template/templates/"
@@ -317,20 +329,42 @@ if command -v grep >/dev/null 2>&1; then
   require_text "README.md" ".template/scripts/test-validate-template.sh"
   require_text "AGENTS.md" "docs/progress.md"
   require_text "AGENTS.md" "docs/prompt.md"
+  require_text "AGENTS.md" "docs/workflow.yaml.current"
+  require_text "AGENTS.md" "03-delivery-report"
+  require_text "AGENTS.md" "当前 workflow item 相关"
+  require_text "AGENTS.md" "Prompt 执行台账只记录 prompt 执行状态"
+  require_text "AGENTS.md" "一次性交付总结，不进入 workflow"
+  require_text "AGENTS.md" "两套状态不得混用"
   require_text "AGENTS.md" "docs/superpowers/plans/archive/"
   require_text "AGENTS.md" "## 4. 开发流程（强制 Superpowers 工作流）"
   require_text "CLAUDE.md" "## 4. 开发流程（强制 Superpowers 工作流）"
   require_text "CLAUDE.md" "docs/progress.md"
   require_text "CLAUDE.md" "docs/prompt.md"
+  require_text "CLAUDE.md" "docs/workflow.yaml.current"
+  require_text "CLAUDE.md" "03-delivery-report"
+  require_text "CLAUDE.md" "当前 workflow item 相关"
+  require_text "CLAUDE.md" "Prompt 执行台账只记录 prompt 执行状态"
+  require_text "CLAUDE.md" "一次性交付总结，不进入 workflow"
+  require_text "CLAUDE.md" "两套状态不得混用"
   require_text "CLAUDE.md" "docs/superpowers/plans/archive/"
+  require_text "templates/progress.md" "docs/workflow.yaml.current"
+  require_text "templates/progress.md" "人类可读阶段"
   require_text "templates/runtime-prompt.md" "Prompt 执行台账"
+  require_text "templates/runtime-prompt.md" "Prompt 状态枚举"
+  require_text "templates/runtime-prompt.md" "Workflow 生命周期一律以"
+  require_text "templates/runtime-prompt.md" "Workflow item"
   require_text "templates/runtime-prompt.md" "Domain Research / Data Discovery"
   require_text "templates/runtime-prompt.md" "docs/superpowers/specs/05-domain-research.md"
   require_text "templates/runtime-prompt.md" "docs/superpowers/plans/90-implementation-plan.md"
-  require_text "templates/runtime-prompt.md" "Not Started / In Progress / Needs Review / Human Confirmed / Consumed / Verified / Archived / Done / Skipped / Blocked"
+  require_text "templates/runtime-prompt.md" "Not Started / In Progress / Needs Review / Done / Skipped / Blocked"
+  if grep -F "Not Started / In Progress / Needs Review / Human Confirmed / Consumed / Verified / Archived / Done / Skipped / Blocked" "$root/templates/runtime-prompt.md" >/dev/null 2>&1; then
+    echo "INVALID runtime prompt state enum: mixed workflow/content states"
+    failures=$((failures + 1))
+  fi
   require_text "templates/workflow.yaml" "docs/superpowers/specs/archive/"
   require_text "templates/workflow.yaml" "docs/superpowers/plans/archive/"
   require_text "templates/workflow.yaml" "本文件跟踪 spec/plan 脚手架到 90-implementation-plan 为止"
+  require_text "templates/workflow.yaml" "03-delivery-report 是交付总结，不进入本状态机"
   require_text "templates/workflow.yaml" "items:"
   require_text "templates/workflow.yaml" "type: spec"
   require_text "templates/workflow.yaml" "type: plan"
@@ -341,7 +375,9 @@ if command -v grep >/dev/null 2>&1; then
   require_text "templates/workflow.yaml" "depends_on: [05-domain-research, 10-ux-prototype]"
   require_text "prompt.md" "docs/progress.md"
   require_text "prompt.md" "## 通用状态转移规则"
-  require_text "prompt.md" '执行任何阶段 prompt 前，先读取 `docs/workflow.yaml.current`'
+  require_text "prompt.md" '执行 spec / plan 阶段 prompt（阶段 1-7）前，先读取 `docs/workflow.yaml.current`'
+  require_text "prompt.md" "阶段 8-11 属于执行层"
+  require_text "prompt.md" '03-delivery-report` 是一次性交付总结，不进入 workflow'
   require_text "prompt.md" "Domain Research / Data Discovery"
   require_text "prompt.md" "docs/superpowers/specs/05-domain-research.md"
   require_text "prompt.md" "docs/superpowers/plans/90-implementation-plan.md"
@@ -351,6 +387,18 @@ if command -v grep >/dev/null 2>&1; then
   require_text "reference/documentation-governance.md" "## 主流程状态机"
   require_text "reference/documentation-governance.md" 'docs/workflow.yaml.current` 是当前 spec / plan item 的权威来源'
   require_text "reference/documentation-governance.md" "pending / drafting / review / ready / consumed / verified / archived / skipped"
+  require_text "reference/documentation-governance.md" "03-delivery-report"
+  require_text "reference/documentation-governance.md" "不进入 workflow"
+  require_text "reference/documentation-governance.md" "内容状态"
+
+  if grep -R "当前阶段相关规格" "$root/README.md" "$root/AI-BOOTSTRAP.md" >/dev/null 2>&1; then
+    echo "INVALID old current-stage prompt wording found"
+    failures=$((failures + 1))
+  fi
+  if grep -R "## 规格状态" "$root/specs" >/dev/null 2>&1; then
+    echo "INVALID old spec status heading found"
+    failures=$((failures + 1))
+  fi
 
   if [[ -f "$root/templates/workflow.yaml" ]]; then
     check_workflow_structure

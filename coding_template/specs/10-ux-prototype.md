@@ -2,7 +2,7 @@
 
 > 目的：定义产品体验、视觉方向和原型复用边界。C 端产品必须填写。
 
-## 规格状态
+## 内容状态
 
 - 状态：[Draft / AI Extracted / Human Confirmed / Frozen / Deprecated / Archived]
 - 来源：[Human Input / AI Extracted from Code / AI Draft]

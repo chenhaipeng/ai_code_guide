@@ -2,7 +2,7 @@
 
 > 目的：把规格拆成可执行、可验证的小步骤。实现前必须先写计划。
 
-## 规格状态
+## 内容状态
 
 - 状态：[Draft / AI Extracted / Human Confirmed / Frozen / Deprecated / Archived]
 - 来源：[Human Input / AI Extracted from Code / AI Draft]

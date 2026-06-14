@@ -2,7 +2,7 @@
 
 > 目的：把模糊 idea 压缩成可执行的产品边界。没有本文件，不进入产品规格阶段。
 
-## 规格状态
+## 内容状态
 
 - 状态：[Draft / AI Extracted / Human Confirmed / Frozen / Deprecated / Archived]
 - 来源：[Human Input / AI Extracted from Code / AI Draft]

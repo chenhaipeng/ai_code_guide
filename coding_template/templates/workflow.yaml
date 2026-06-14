@@ -4,6 +4,7 @@
 # AI 完成一个 spec/plan 的产出、确认、消费、验证或归档后，必须按转移规则更新本文件。
 # 状态机转移不能只在 AI 上下文里——跨 session 会丢，必须写回这里。
 # 本文件跟踪 spec/plan 脚手架到 90-implementation-plan 为止；之后代码实现按 plan task 和 docs/e2e/verify/ 报告跟踪。
+# 03-delivery-report 是交付总结，不进入本状态机；生成和归档记录在 docs/progress.md 与 docs/prompt.md 执行台账。
 # 详见 .template/AI-BOOTSTRAP.md §0 方法论主线。
 
 current: ""   # 当前活跃 item id；项目启动时为空，激活第一个 item 后填入
@@ -15,7 +16,7 @@ current: ""   # 当前活跃 item id；项目启动时为空，激活第一个 i
 #   ready     : 人类已确认；spec 内容状态可标记为 Human Confirmed
 #   consumed  : 已被后续 spec、implementation plan 或实现阶段使用
 #   verified  : 对应代码、验收或下游产物已验证通过
-#   archived  : 文件内状态已改为 Archived，并已移入对应 archive
+#   archived  : 文件内内容状态已改为 Archived，并已移入对应 archive
 #   skipped   : 明确不适用；必须在 docs/prompt.md 执行台账和 docs/progress.md 写明跳过原因
 #
 # spec/plan 内容状态: Draft / AI Extracted / Human Confirmed / Frozen / Deprecated / Archived

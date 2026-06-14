@@ -1,8 +1,10 @@
 # Delivery Report 模板
 
 > 目的：记录交付证据、未验证项和风险。没有本文件，不算完成交付。
+>
+> 角色定位：本报告是一次性交付总结，不进入 `docs/workflow.yaml`；生成、确认和归档记录在 `docs/progress.md` 与 `docs/prompt.md` 执行台账中。完成并确认后先改内容状态为 `Archived`，再移动到 `docs/superpowers/specs/archive/`。
 
-## 规格状态
+## 内容状态
 
 - 状态：[Draft / AI Extracted / Human Confirmed / Frozen / Deprecated / Archived]
 - 来源：[Human Input / AI Extracted from Code / AI Draft]

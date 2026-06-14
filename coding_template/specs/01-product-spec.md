@@ -2,7 +2,7 @@
 
 > 目的：定义用户路径、页面、状态和验收标准。没有本文件，不进入原型或架构阶段。
 
-## 规格状态
+## 内容状态
 
 - 状态：[Draft / AI Extracted / Human Confirmed / Frozen / Deprecated / Archived]
 - 来源：[Human Input / AI Extracted from Code / AI Draft]

@@ -72,24 +72,28 @@ Mock / Contract 参考：[mock 文件路径]
 
 ## 4. 开发流程（强制 Superpowers 工作流）
 
-默认项目已安装 Superpowers 插件。开发、调试、规划、验证、Git 和代码审查相关任务必须优先使用对应 skill，不得绕过 Superpowers 工作流直接实现。
+默认项目使用 Superpowers 工作流。开发、调试、规划、验证、Git 和代码审查相关任务必须优先使用对应 skill；如果当前环境没有可用 skill，必须在回复中说明降级执行方式和缺失能力。
 
 ### Superpowers 与主线 prompt 的边界
 
-- `.template/prompt.md`、`docs/prompt.md` 和 `docs/workflow.yaml` 决定产品工程主线、当前阶段、依赖和下一步。
-- Superpowers 决定每个阶段怎么执行：构思/规格用 brainstorming，实施计划用 writing-plans，开发按计划使用 TDD、review 和 verification 相关 skill。
+- `.template/prompt.md` 是阶段 prompt 模板原件，不写项目事实；`docs/prompt.md` 是项目运行态 prompt 和 Prompt 执行台账；`docs/workflow.yaml` 是 spec / plan 生命周期状态机。
+- `docs/workflow.yaml.current` 是当前 spec / plan item 的权威；`docs/progress.md` 和 `docs/prompt.md` 只能解释、展示或辅助纠偏，不另立当前 item 真相。
+- `docs/workflow.yaml` 默认跟踪到 `90-implementation-plan`；阶段 8-11 属于执行层，按 implementation plan task、`docs/progress.md`、`docs/e2e/verify/` 和交付报告跟踪。
+- `03-delivery-report` 是一次性交付总结，不进入 workflow；完成并确认后仍按 spec 归档到 `docs/superpowers/specs/archive/`。
+- Superpowers 决定每类工作怎么执行：构思/规格优先用 brainstorming，实施计划用 writing-plans，开发按计划使用 TDD、review、debugging 和 verification 相关 skill。
 - 本项目遵循 Superpowers 的默认文档根路径：阶段 spec 写入 `docs/superpowers/specs/`，implementation plan 写入 `docs/superpowers/plans/`。
 - 人类 review 是阶段 gate：spec 从 `review` 到 `ready`、实施计划从 `review` 到 `ready`、验证完成后从 `verified` 到 `archived` 必须经人类确认。
-- `Human Confirmed` 只表示 spec 或 plan 可被后续阶段消费，不表示可以立即归档。完成并经人类确认后，必须先把文件内状态改为 `Archived`，再移动到对应 archive。
+- `Human Confirmed` 是内容状态，只表示 spec 或 plan 经人类确认、可被后续阶段消费；`archived` 是 workflow 状态，只表示生命周期结束。完成并经人类确认后，必须先把文件内内容状态改为 `Archived`，再移动到对应 archive。
 - 按需阶段不能静默绕过；如 UX / Prototype 不适用，必须在 `docs/workflow.yaml` 标记为 `skipped`，并在 `docs/prompt.md` 执行台账和 `docs/progress.md` 写明原因。
 
 ### Superpowers 产物归档
 
-- Superpowers 产出的阶段 spec 写入 `docs/superpowers/specs/`，完成后归档到 `docs/superpowers/specs/archive/`。
-- Superpowers 产出的 implementation plan 写入 `docs/superpowers/plans/`，完成后归档到 `docs/superpowers/plans/archive/`；即使内容来自 `.template/specs/90-implementation-plan.md`，项目实际计划也归入 `docs/superpowers/plans/`。
-- 归档前必须更新文件内的规格状态：`Human Confirmed` 表示可执行，`Archived` 表示该 spec 或 plan 已完成并移出活跃上下文。
-- 移动到 archive 后，必须同步更新 `docs/workflow.yaml`、`docs/progress.md` 和 `docs/prompt.md` 的执行台账。
-- 归档不是删除事实：接口、数据、行为以代码为准；决策写入 `docs/decision.md`；当前状态写入 `docs/progress.md`。
+- Superpowers 产出的阶段 spec 写入 `docs/superpowers/specs/`；workflow 内的 spec 完成后归档到 `docs/superpowers/specs/archive/`。
+- Superpowers 产出的 implementation plan 写入 `docs/superpowers/plans/`，完成后归档到 `docs/superpowers/plans/archive/`；即使模板来自 `.template/specs/90-implementation-plan.md`，项目实际计划也归入 `docs/superpowers/plans/`。
+- 归档前必须更新文件内的内容状态：`Human Confirmed` 表示内容经人类确认、可被消费；`Archived` 表示该 spec 或 plan 已完成并移出活跃上下文。
+- workflow item 移动到 archive 后，必须同步更新 `docs/workflow.yaml`、`docs/progress.md` 和 `docs/prompt.md` 的执行台账。
+- `03-delivery-report` 不进入 workflow，生成、确认和归档只更新 `docs/progress.md` 与 `docs/prompt.md` 执行台账。
+- 归档不是删除事实：接口、数据、行为以代码为准；决策写入 `docs/decision.md`；执行进度摘要写入 `docs/progress.md`。
 
 ### TDD 灵活度
 
@@ -172,13 +176,13 @@ Mock / Contract 参考：[mock 文件路径]
 
 ## 6. 规格模板索引
 
-详细规格不写在本入口文件中。模板原件位于 `.template/specs/`，项目实际规格写入 `docs/superpowers/specs/`，项目实际计划写入 `docs/superpowers/plans/`，研究证据和数据发现写入 `docs/research/`。
+详细规格不写在本入口文件中。模板原件位于 `.template/specs/`；项目实际规格写入 `docs/superpowers/specs/`；项目实际计划写入 `docs/superpowers/plans/`；研究证据和数据发现写入 `docs/research/`。
 
-`.template/specs/` 只保存模板原件，不写项目事实；`docs/superpowers/specs/` 保存项目实际规格（思考脚手架，经人类确认后供后续阶段消费，完成并确认后改为 `Archived` 再移动到 `docs/superpowers/specs/archive/`）；`docs/superpowers/plans/` 保存项目实际实施计划，完成并确认后归档到 `docs/superpowers/plans/archive/`；现状（接口 / 数据）以代码为准。`docs/research/` 保存领域调研、竞品、数据来源、数据链路、用户闭环、证据和待确认假设；Domain Research spec 主产物为 `docs/superpowers/specs/05-domain-research.md`。默认建议 `.template/` 随项目入库；如果团队选择不入库，必须在 `docs/decision.md` 记录模板源路径和重新安装方式。
+`.template/specs/` 只保存模板原件，不写项目事实；`docs/superpowers/specs/` 保存项目实际规格（思考脚手架，经人类确认后供后续阶段消费，完成并确认后按规则归档）；`docs/superpowers/plans/` 保存项目实际实施计划，完成并确认后归档到 `docs/superpowers/plans/archive/`；现状（接口 / 数据 / 行为）以代码、测试、OpenAPI 和 ORM / migration 为准。`docs/research/` 保存领域调研、竞品、数据来源、数据链路、用户闭环、证据和待确认假设；Domain Research spec 主产物为 `docs/superpowers/specs/05-domain-research.md`。默认建议 `.template/` 随项目入库；如果团队选择不入库，必须在 `docs/decision.md` 记录模板源路径和重新安装方式。
 
-`.template/prompt.md` 是阶段 prompt 模板原件，不写项目事实；`docs/prompt.md` 是目标项目运行态 prompt，必须根据目标项目自身已有 prompt、`CLAUDE.md` / `AGENTS.md`、`docs/progress.md`、`docs/workflow.yaml`、当前阶段相关 `docs/superpowers/specs/`、`docs/superpowers/plans/` 和 `docs/research/` 生成或更新。阶段切换后必须更新 `docs/prompt.md` 的当前推荐 prompt。
+`.template/prompt.md` 是阶段 prompt 模板原件，不写项目事实；`docs/prompt.md` 是目标项目运行态 prompt，必须根据目标项目自身已有 prompt、`CLAUDE.md` / `AGENTS.md`、`docs/progress.md`、`docs/workflow.yaml`、当前 workflow item 相关 `docs/superpowers/specs/`、`docs/superpowers/plans/` 和 `docs/research/` 生成或更新。阶段切换后必须更新 `docs/prompt.md` 的当前推荐 prompt 和 Prompt 执行台账。
 
-`docs/decision.md` 记录长期决策；`docs/progress.md` 记录当前阶段、任务状态、验证结果和下一步。研究发现如果影响长期事实，必须从 `docs/research/` 回写到对应 `docs/superpowers/specs/`、decision 或 progress。阶段切换、长任务中断、E2E 验收和交付前后必须更新 `docs/progress.md`；主流程状态必须更新 `docs/workflow.yaml`。
+`docs/decision.md` 记录长期决策；`docs/progress.md` 记录跨 session 摘要、任务状态、验证结果和下一步，但当前 spec / plan item 以 `docs/workflow.yaml.current` 为准。研究发现如果影响长期事实，必须从 `docs/research/` 回写到对应 `docs/superpowers/specs/`、decision 或 progress。spec / plan 阶段切换必须更新 `docs/workflow.yaml`、`docs/progress.md` 和 `docs/prompt.md`；进入阶段 8-11 执行层后，按 implementation plan task、`docs/progress.md`、`docs/e2e/verify/` 和交付报告跟踪，不新增默认 workflow item。
 
 AI 首次接手项目时，优先阅读：`.template/AI-BOOTSTRAP.md`，用于判断项目阶段、检查文档缺口并向人类推荐下一步 prompt。
 
@@ -189,7 +193,7 @@ AI 首次接手项目时，优先阅读：`.template/AI-BOOTSTRAP.md`，用于�
 1. Idea Brief：`.template/specs/00-idea-brief.md`（模板）/ `docs/superpowers/specs/00-idea-brief.md`（项目实际）
 2. Product Spec：`.template/specs/01-product-spec.md`（模板）/ `docs/superpowers/specs/01-product-spec.md`（项目实际）
 3. E2E Acceptance Spec：`.template/specs/02-e2e-acceptance.md`（模板）/ `docs/superpowers/specs/02-e2e-acceptance.md`（项目实际）
-4. Delivery Report：`.template/specs/03-delivery-report.md`（模板）/ `docs/superpowers/specs/03-delivery-report.md`（项目实际）
+4. Delivery Report：`.template/specs/03-delivery-report.md`（模板）/ `docs/superpowers/specs/03-delivery-report.md`（项目实际，一次性交付总结，不进入 workflow）
 
 ### 研究 / 数据发现
 
@@ -208,21 +212,21 @@ AI 首次接手项目时，优先阅读：`.template/AI-BOOTSTRAP.md`，用于�
 
 ### 使用规则
 
-- 入口文件只保留全局约束和文档索引。
+- 入口文件只保留全局约束、权威来源和文档索引；不要在本文件维护页面、接口、字段或当前 workflow item / 执行层事实。
 - 具体页面、接口、数据、架构、前后端规范按需写入 `docs/superpowers/specs/` 下对应 spec 文件。
 - 竞品、领域术语、数据来源、数据链路、用户闭环、证据和待确认假设写入 `docs/research/`；确认后的长期事实必须同步回写对应 spec。
-- 具体可执行的下一步 prompt 写入 `docs/prompt.md`；长期事实不得只写在 `docs/prompt.md`，必须同步回写对应 spec、decision 或 progress。
+- 具体可执行的下一步 prompt 写入 `docs/prompt.md`；Prompt 执行台账只记录 prompt 执行状态，不得把 `Human Confirmed`、`archived` 等 workflow/content 状态写成 Prompt 状态。长期事实不得只写在 `docs/prompt.md`，必须同步回写对应 spec、decision 或 progress。
 - 如果某个规格填充后超过 20 行，保留在独立 spec 文件中，不要内联回本文件。
-- 实现前**必须**读取当前任务直接相关的 spec 文件。
-- 每个 spec 和 plan 必须维护规格状态：`Draft / AI Extracted / Human Confirmed / Frozen / Deprecated / Archived`。AI 从代码或文档反填的内容只能标记为 `AI Extracted`，不能冒充人类确认。归档前必须先把文件内状态改为 `Archived`，再移动到对应 archive。`docs/workflow.yaml` 另行维护 workflow 状态：`pending / drafting / review / ready / consumed / verified / archived / skipped`。
+- 实现前**必须**读取当前 task 直接相关的 spec / plan / research，避免一次性加载无关历史脚手架。
+- 每个 spec 和 plan 必须维护内容状态：`Draft / AI Extracted / Human Confirmed / Frozen / Deprecated / Archived`。AI 从代码或文档反填的内容只能标记为 `AI Extracted`，不能冒充人类确认。归档前必须先把文件内内容状态改为 `Archived`，再移动到对应 archive。`docs/workflow.yaml` 另行维护 workflow 状态：`pending / drafting / review / ready / consumed / verified / archived / skipped`；两套状态不得混用。
 - 如果存在 `.template/scripts/validate-template.sh`，模板安装、模板修改或交付前应运行 `.template/scripts/validate-template.sh .template`。
 
 ## 7. 文档治理
 
 > 详见 `.template/reference/documentation-governance.md`。核心:
 
-- **信息只活在一处**:现状(接口 / 数据 / 行为)→ **代码即真相**(OpenAPI / ORM+迁移 / 测试),不手写;决策(为什么)→ `docs/decision.md`(append-only 封存);状态(现在到哪)→ `docs/progress.md`(轻量维护);导航 / 约束 → `README` + 本文件(指向上面的源)。
-- **specs / plans 是思考脚手架**:确认、消费、验证完成后先改状态为 `Archived`，再移动到各自 archive,不长期维护;现状不抄进 spec 或 plan。
-- **长期只维护** `README` + `docs/decision.md` + `docs/progress.md`(+ 本文件)。其余要么是代码,要么是用完即弃的脚手架。
+- **信息只活在一处**:现状(接口 / 数据 / 行为)→ **代码即真相**(OpenAPI / ORM+迁移 / 测试),不手写;决策(为什么)→ `docs/decision.md`(append-only 封存);当前 spec / plan item → `docs/workflow.yaml.current`;执行进度摘要 → `docs/progress.md`(轻量维护);导航 / 约束 → `README` + 本文件(指向上面的源)。
+- **specs / plans 是思考脚手架**:确认、消费、验证完成后先改内容状态为 `Archived`，再移动到各自 archive,不长期维护;现状不抄进 spec 或 plan。
+- **长期只维护** `README` + `docs/decision.md` + `docs/progress.md` + `docs/workflow.yaml`(+ 本文件)。其余要么是代码,要么是用完即弃的脚手架。
 
 判定一份文档去留:删掉它谁会受影响?它描述会变的现状、还是不变的决策?谁在何时需要它?
