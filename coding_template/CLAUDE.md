@@ -86,6 +86,24 @@ Mock / Contract 参考：[mock 文件路径]
 - `Human Confirmed` 是内容状态，只表示 spec 或 plan 经人类确认、可被后续阶段消费；`archived` 是 workflow 状态，只表示生命周期结束。完成并经人类确认后，必须先把文件内内容状态改为 `Archived`，再移动到对应 archive。
 - 按需阶段不能静默绕过；如 UX / Prototype 不适用，必须在 `docs/workflow.yaml` 标记为 `skipped`，并在 `docs/prompt.md` 执行台账写明原因。
 
+### 持续优化 Loop（已有项目优先）
+
+当任务是已有代码库上的增量改造、重构、工具层重做或长期持续优化时，默认优先使用持续优化 Loop：
+
+1. 先创建 `Phase00-main` 总控 spec
+2. 再拆分 `Phase01+` spec，并显式写明依赖顺序和编号
+3. 每个 `Phase` 单独生成 plan
+4. 每个 `Phase` 完成后写 verify 报告
+5. 每次关键改动后立即执行构建、测试和必要 E2E
+6. 未达到最终验收标准前不得停止，除非连续三轮自救失败并进入 `blocked`
+
+命名规则：
+
+- `docs/superpowers/specs/YYYY-MM-DD-Phase00-[topic]-main.md`
+- `docs/superpowers/specs/YYYY-MM-DD-PhaseNN-[topic].md`
+- `docs/superpowers/plans/YYYY-MM-DD-PhaseNN-[topic]-plan.md`
+- `docs/e2e/verify/YYYY-MM-DD-PhaseNN-[topic]-verify.md`
+
 ### Superpowers 产物归档
 
 - Superpowers 产出的阶段 spec 写入 `docs/superpowers/specs/`；workflow 内的 spec 完成后归档到 `docs/superpowers/specs/archive/`。

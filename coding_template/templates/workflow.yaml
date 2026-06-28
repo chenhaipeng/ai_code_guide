@@ -33,6 +33,15 @@ current: ""   # 当前活跃 item id；项目启动时为空，激活第一个 i
 #   7. current = 新激活的 item；写回本文件
 #   人类 review 强制点: review → ready、implementation plan review → ready、verified → archived。
 #   按需阶段强制点: 只有在状态标记为 skipped 且写明原因后，后续依赖才能继续。
+#
+# 持续优化 Loop 补充字段：
+#   phase_id        : Phase00 / Phase01 / ...
+#   phase_type      : main | phase
+#   acceptance_gate : 当前 item 的验收门禁摘要
+#   loop_status     : pending | ready | in_progress | verifying | passed | failed | blocked | archived
+#   retry_count     : 连续自救轮次，默认 0
+#
+# 这些字段用于已有项目的持续优化 Loop；不替代现有 workflow/content 状态，而是补充 Phase 级主线控制。
 
 # 默认主线（按 prompt.md 阶段序；项目可增删 spec 或调整依赖）:
 items:
@@ -128,3 +137,18 @@ items:
     content_status: Draft
     depends_on: [02-e2e-acceptance]
     triggers: []   # 后续是代码实现，按 implementation-plan 内的 task 跟踪
+
+# 持续优化 Loop 示例（按需复制到目标项目运行态 docs/workflow.yaml）:
+#   - id: 2026-06-28-Phase00-source-tool-main
+#     type: spec
+#     phase_id: Phase00
+#     phase_type: main
+#     artifact_path: docs/superpowers/specs/2026-06-28-Phase00-source-tool-main.md
+#     archive_path: docs/superpowers/specs/archive/
+#     status: review
+#     content_status: Human Confirmed
+#     depends_on: []
+#     triggers: [2026-06-28-Phase01-repo-index]
+#     acceptance_gate: 最终验收标准已写入总控 spec
+#     loop_status: ready
+#     retry_count: 0

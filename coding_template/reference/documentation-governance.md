@@ -37,6 +37,19 @@ workflow 状态维护过程生命周期：`pending / drafting / review / ready /
 
 `docs/workflow.yaml` 跟踪 spec / plan 脚手架到 `90-implementation-plan` 为止。进入代码实现后，进度由 implementation plan 内 task、`docs/prompt.md` 执行台账、验证命令和 `docs/e2e/verify/` 报告跟踪。`03-delivery-report` 是一次性交付总结，不进入 workflow；生成、确认和归档记录在 `docs/prompt.md` 执行台账。
 
+## 持续优化 Loop 文档
+
+当项目采用持续优化 Loop 时，长期导航状态除了现有 `workflow.yaml` 和 `prompt.md` 执行台账外，还必须能够回答：
+
+- 当前总控主题是什么
+- 当前 Phase 是哪个
+- 该 Phase 依赖是否满足
+- 最近一次验证是否通过
+- 当前是否处于自救第几轮
+- 是否已经进入 `blocked`
+
+`Phase00-main` 是总控设计快照；`PhaseNN spec`、`PhaseNN plan` 和 `PhaseNN verify` 仍属于过程产物。它们的价值在推动闭环，而不是长期维护成“活真相”。
+
 ## 最小长期维护集
 
 一个项目真正需要长期维护的文档只有：

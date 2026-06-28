@@ -78,6 +78,21 @@ expect_fail() {
     missing-workflow-self-check)
       perl -0pi -e 's/^\| `docs\/workflow\.yaml` .*?\n//m' "$case_root/AI-BOOTSTRAP.md"
       ;;
+    missing-loop-prompt)
+      perl -0pi -e 's/^## 持续优化 Loop\n.*?(?=\n## |\z)//ms' "$case_root/prompt.md"
+      ;;
+    missing-runtime-loop-ledger)
+      perl -0pi -e 's/^## Loop 执行台账\n.*?(?=\n## |\z)//ms' "$case_root/templates/runtime-prompt.md"
+      ;;
+    missing-workflow-loop-fields)
+      perl -0pi -e 's/^# 持续优化 Loop 补充字段：\n.*?(?=\n# 默认主线|\z)//ms' "$case_root/templates/workflow.yaml"
+      ;;
+    missing-agent-loop-rules)
+      perl -0pi -e 's/^### 持续优化 Loop（已有项目优先）\n.*?(?=\n### |\n## |\z)//ms' "$case_root/AGENTS.md"
+      ;;
+    missing-claude-loop-rules)
+      perl -0pi -e 's/^### 持续优化 Loop（已有项目优先）\n.*?(?=\n### |\n## |\z)//ms' "$case_root/CLAUDE.md"
+      ;;
     *)
       echo "Unknown test case: $name"
       return 1
@@ -113,5 +128,10 @@ expect_fail obsolete-progress-reference "INVALID obsolete progress.md reference 
 expect_fail obsolete-spec-template-dir "INVALID obsolete spec template dir: specs/"
 expect_fail missing-delivery-outside-workflow "MISSING text in AI-BOOTSTRAP.md: 03-delivery-report"
 expect_fail missing-workflow-self-check "MISSING text in AI-BOOTSTRAP.md: | \`docs/workflow.yaml\`"
+expect_fail missing-loop-prompt "MISSING text in prompt.md: ## 持续优化 Loop"
+expect_fail missing-runtime-loop-ledger "MISSING text in templates/runtime-prompt.md: ## Loop 执行台账"
+expect_fail missing-workflow-loop-fields "MISSING text in templates/workflow.yaml: 持续优化 Loop 补充字段"
+expect_fail missing-agent-loop-rules "MISSING text in AGENTS.md: ### 持续优化 Loop（已有项目优先）"
+expect_fail missing-claude-loop-rules "MISSING text in CLAUDE.md: ### 持续优化 Loop（已有项目优先）"
 
 echo "Validator negative tests passed"

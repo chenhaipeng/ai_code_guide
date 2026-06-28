@@ -89,6 +89,24 @@ content : Draft / AI Extracted / Human Confirmed / Frozen / Deprecated / Archive
 
 人类 review 的强制点：spec 从 `review` 到 `ready`、实施计划从 `review` 到 `ready`、验证完成后从 `verified` 到 `archived`。按需阶段跳过时必须在 `docs/prompt.md` 执行台账写明原因；例如 UX 不适用时，先把 `10-ux-prototype` 标记为 `skipped`，`20-architecture` 才能继续。其余小步状态更新由 AI 写入对应权威文件：workflow 状态写 `docs/workflow.yaml`，prompt 执行状态写 `docs/prompt.md`，实现任务写 active plan task，验证证据写 `docs/e2e/verify/`。归档时必须同步更新 `docs/workflow.yaml` 和 `docs/prompt.md` 的执行台账。
 
+### 持续优化 Loop 主线
+
+当项目目标是已有代码库上的增量改造、重构、工具层重做或长期持续优化时，默认优先选择持续优化 Loop，而不是从 `00-idea-brief` 开始的产品交付主线。
+
+持续优化 Loop 的权威入口是：
+
+- `docs/superpowers/specs/YYYY-MM-DD-Phase00-[topic]-main.md`
+- `docs/superpowers/specs/YYYY-MM-DD-PhaseNN-[topic].md`
+- `docs/superpowers/plans/YYYY-MM-DD-PhaseNN-[topic]-plan.md`
+- `docs/e2e/verify/YYYY-MM-DD-PhaseNN-[topic]-verify.md`
+
+Loop 停止条件只有两种：
+
+1. 达到 `Phase00-main` 中定义的最终验收标准
+2. 连续三轮自救失败并进入 `blocked`
+
+AI 不得以“主要功能差不多了”或“测试大部分通过”作为停止理由。Loop 默认仍由 Superpowers 执行具体工作：先用 brainstorming 产出总控或关键 Phase 设计，再用 writing-plans 产出对应 Phase plan，执行阶段继续使用 TDD、debugging、verification 和 review 相关 skill。
+
 ### 长期只维护
 
 `README` + `decision.md` + `workflow.yaml` + `prompt.md` 执行台账（+ `CLAUDE.md`/`AGENTS.md`）。其余(spec / research / plan / verify)是过程产物或验证证据，确认、消费并验证后先改内容状态再归档。
@@ -158,6 +176,8 @@ AI 进入项目后，**不要**立刻实现功能。必须先完成三件事：
 1. 判断 `docs/workflow.yaml.current` 指向哪个 spec / plan item；若已进入阶段 8-11，则判断执行层位置。
 2. 检查项目是否具备必要文档和验证条件。
 3. 根据目标项目自身 prompt 生成或更新 `docs/prompt.md`，向人类说明下一步推荐使用哪个 prompt，并请求确认。
+
+如果当前任务是已有项目的增量改造，先判断是否应创建 `Phase00-main`，而不是直接进入实现阶段；只有在总控目标、最终验收标准和 Phase 依赖关系已经明确存在时，才允许跳过这一步。
 
 在 bootstrap 诊断阶段，只读取判断当前 workflow item / 执行层位置所需的最少文档，避免无关 spec 干扰阶段判断。进入实现阶段后，可按需读取当前 task 直接相关的 spec / plan / research，不受此限制。
 

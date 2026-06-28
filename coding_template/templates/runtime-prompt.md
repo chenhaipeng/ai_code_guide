@@ -7,6 +7,10 @@
 ## 元信息
 
 - 项目名称：[项目名称]
+- 当前 loop 主题：[如无写“无”]
+- 当前 loop 模式：[产品交付主线 / 持续优化 Loop]
+- 当前 Phase：[如无写“无”]
+- 最近一次自救轮次：[0 / 1 / 2 / 3]
 - 当前 workflow item：[`docs/workflow.yaml.current`，如 `01-product-spec`；执行层写 `post-90-implementation`]
 - 人类可读阶段：[如 Product Spec / Development / Acceptance；以 `docs/workflow.yaml.current` 为准]
 - 最近更新时间：[YYYY-MM-DD HH:mm]
@@ -41,6 +45,14 @@
 | 阶段 11：Delivery Report | Not Started | `03-delivery-report`（不进 workflow） | 不适用 | [Draft / Archived] | [YYYY-MM-DD HH:mm] | [路径或无] | `docs/superpowers/specs/03-delivery-report.md` | [通过 / 未验证 / 不适用] | 一次性交付总结，不作为 workflow item |
 | 通用：已交付产品增量迭代 | Not Started | 按需 Delta Spec（不进默认 workflow） | 不适用 | [Draft / Archived] | [YYYY-MM-DD HH:mm] | [路径或无] | [Delta Spec / 回归范围] | [通过 / 未验证 / 不适用] | 按需追加任务编号 |
 
+## Loop 执行台账
+
+> 目的：当项目采用持续优化 Loop 时，记录 `Phase00-main`、`PhaseNN`、关键改动、自救轮次和最终验收达成度。未采用持续优化 Loop 时，本节可保留为空表。
+
+| Loop 主题 | 当前 Phase | Phase 状态 | 当前关键改动 | 最近一次验证结果 | 自救轮次 | 当前阻塞项 | 最终验收标准达成度 | 最近更新时间 | 备注 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| [topic 或无] | [Phase00 / Phase01 / 无] | [pending / ready / in_progress / verifying / passed / failed / blocked / archived] | [描述或无] | [通过 / 不通过 / 未验证] | [0 / 1 / 2 / 3] | [描述或无] | [百分比或文字说明] | [YYYY-MM-DD HH:mm] | [说明] |
+
 ## 当前推荐 Prompt
 
 ```text
@@ -69,6 +81,10 @@
 
 - 阶段切换后必须更新本文件的"当前推荐 Prompt"。
 - 每次选择、执行、跳过或完成阶段 prompt 后，必须更新"Prompt 执行台账"。
+- 当项目采用持续优化 Loop 时，阶段切换之外还必须同步更新“Loop 执行台账”。
+- `Loop 执行台账`中的 `Phase 状态` 只允许使用：`pending / ready / in_progress / verifying / passed / failed / blocked / archived`。
+- 自救轮次达到 `3` 后，如仍未满足当前 Phase 验收标准，必须把阻塞项写入 `docs/decision.md` 和 verify 报告。
+- 如果最终回复声称“完成”或“通过”，`Loop 执行台账` 中的最终验收标准达成度必须与 verify 报告一致。
 - Prompt 状态只记录执行层：标记为 `Needs Review` 必须写明需要人类确认的问题；标记为 `Done` 必须有输出产物；标记为 `Skipped` 必须写明跳过原因；标记为 `Blocked` 必须写明阻塞条件和需要谁确认。
 - Workflow 状态必须从 `docs/workflow.yaml` 同步，不得在本表单独推进；Content 状态必须从对应 spec / plan 文件和 `workflow.content_status` 同步，不得把 `Human Confirmed`、`Archived` 写成 Prompt 状态。
 - 归档时必须说明文件内状态已改为 `Archived` 且已移动到对应 archive；spec 到 `docs/superpowers/specs/archive/`，plan 到 `docs/superpowers/plans/archive/`。

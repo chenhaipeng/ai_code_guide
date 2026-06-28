@@ -281,6 +281,98 @@ Architecture / API / Data Specs：[路径]
 
 ---
 
+## 持续优化 Loop
+
+> 适用：已有代码库上的增量改造、重构、工具层重做、长期持续优化；默认优先于从 0 到 1 主线。
+>
+> 停止条件：只有 `Phase00-main` 中定义的最终验收标准达成，或连续三轮自救失败并明确 `blocked`，才允许停止。
+
+### 持续优化总控 spec
+
+```text
+我的目标是：[最终目标]
+
+请不要直接实现，先按持续优化 Loop 生成总控 spec，并写入：
+`docs/superpowers/specs/YYYY-MM-DD-Phase00-[topic]-main.md`
+
+要求：
+1. 明确定义最终目标和最终验收标准
+2. 将工作拆分为 `Phase01+`
+3. 每个 Phase 必须有编号、主题、依赖关系、推荐方案和验收条件
+4. 明确哪些 Phase 必做、哪些按需
+5. 明确最终 E2E / 回归口径
+
+验证：没有最终验收标准、没有依赖顺序、没有 Phase 编号，不进入下一步。
+```
+
+### Phase 拆解 spec
+
+```text
+总控 spec：[路径]
+当前待拆解 Phase：[Phase 编号]
+
+请生成该 Phase 的 spec，并写入：
+`docs/superpowers/specs/YYYY-MM-DD-[Phase 编号]-[topic].md`
+
+要求：
+1. 写明目标、上游依赖、输入依据、输出产物
+2. 默认按推荐方案或最佳实践执行
+3. 如存在方案分歧，默认选择推荐方案并要求记录到 `docs/decision.md`
+4. 写明风险、边界、验收条件、回写要求和下一 Phase 触发条件
+
+验证：没有验收条件、没有依赖、没有回写要求，不进入 plan。
+```
+
+### Phase Plan
+
+```text
+当前 Phase spec：[路径]
+
+请使用 Superpowers 的 planning 工作流生成该 Phase 的实施计划，并写入：
+`docs/superpowers/plans/YYYY-MM-DD-[Phase 编号]-[topic]-plan.md`
+
+要求：
+1. 拆成可执行的小步
+2. 每一步明确修改范围、验证命令、局部 E2E 路径
+3. 每完成一个关键改动立即验证，不攒积压
+4. 验证失败先修复，不继续下一个关键改动
+
+验证：没有验证命令或没有局部 E2E 路径，不进入实现。
+```
+
+### Phase 执行与验证
+
+```text
+请执行当前 Phase。
+
+执行要求：
+1. 大循环按 Phase 推进，小循环按关键改动推进
+2. 每完成一个关键改动，立即执行构建、相关测试和必要的局部 E2E
+3. 验证结果写入 `docs/e2e/verify/YYYY-MM-DD-[Phase 编号]-[topic]-verify.md`
+4. 任务状态变化后，更新对应 spec、plan、`docs/workflow.yaml` 和 `docs/prompt.md`
+5. 未达到当前 Phase 验收标准，不进入下一个 Phase
+```
+
+### Loop 恢复 / 阻塞上报
+
+```text
+当前 Phase：[Phase 编号]
+当前问题：[问题描述]
+
+请先按持续优化 Loop 自救，不要立即停止：
+1. 第一轮：换实现路径，不扩大范围
+2. 第二轮：补证据、补日志、补最小验证，缩小问题面
+3. 第三轮：缩小到达成当前验收标准所需的最小闭环
+
+如果三轮后仍无法推进：
+- 标记为 `blocked`
+- 更新 `docs/prompt.md` 和 `docs/workflow.yaml`
+- 写入 `docs/decision.md`
+- 在 verify 报告中写明阻塞项、已尝试路径、仍缺失的外部条件和需要的人类输入
+```
+
+---
+
 ## 通用 Prompt
 
 ### 已交付产品增量迭代

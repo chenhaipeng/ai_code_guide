@@ -124,6 +124,24 @@ your-project/
 
 按需阶段不能静默跳过。以 UX / Prototype 为例：如果产品不涉及 C 端体验、复杂页面、视觉设计或可交互原型，必须把 `10-ux-prototype` 标记为 `skipped` 并写明原因；否则 `20-architecture` 不能继续。
 
+## 持续优化 Loop（已有项目优先）
+
+对于已有代码库上的增量改造、重构、工具层重做和长期持续优化，模板默认优先使用持续优化 Loop：
+
+1. 先写 `Phase00-main` 总控 spec，定义最终目标和最终验收标准
+2. 再拆 `Phase01+` spec，明确依赖关系和编号
+3. 每个 Phase 单独写 plan
+4. 每个 Phase 完成后写 verify 报告
+5. 任务状态变化后同步更新对应 spec / plan、`docs/workflow.yaml` 和 `docs/prompt.md`
+6. 未达到最终验收标准前不得停止，除非连续三轮自救失败并进入 `blocked`
+
+命名规则：
+
+- `docs/superpowers/specs/YYYY-MM-DD-Phase00-[topic]-main.md`
+- `docs/superpowers/specs/YYYY-MM-DD-PhaseNN-[topic].md`
+- `docs/superpowers/plans/YYYY-MM-DD-PhaseNN-[topic]-plan.md`
+- `docs/e2e/verify/YYYY-MM-DD-PhaseNN-[topic]-verify.md`
+
 ## AI 启动 Prompt
 
 ```text
