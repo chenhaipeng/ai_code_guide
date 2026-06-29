@@ -454,9 +454,9 @@ Architecture / API / Data Specs：[路径]
 ```text
 新建 spec 总控完善用户管理功能，包括不限于，前台用户注册登陆，激活，改密、/ask 侧边栏 session（注意考虑最多保存多久），后台用户管理，权限分批（对 sop,knowledge base ，生产日志，apm,联网搜索等功能），日志审计
 
-先建一个 mian 和定义验收标准(重点，必须) ,然后拆解每个Phase，每个Phase 有依赖编号关系
+
 按 superpowers 的开发工作流完成
-1. 按总控spec 拆分 spec ,需要有依赖顺序和编号2026-06-24(date)-Phase00-xxx(topic).md, spec 保存到 specs 目录下
+1. 先建一个 YYYY-MM-DD-Phase00-xxx(topic).md 定义验收标准(重点、必须) 保存到 specs 目录下 ,然后拆解每个Phase YYYY-MM-DD-Phasexx-xxx(topic).md ，每个Phase 有依赖编号关系。
 2. 依次按 spec 的顺序关系，遇到决策时，默认按推荐方案或最优实践执行，但必须记录到 docs/decision.md：
    - 决策问题、备选方案、选择、理由、影响范围、相关文件。
 3. 每完成一个 Phase 或关键改动，立即验证（构建 + 测试 + E2E），不攒积压。
